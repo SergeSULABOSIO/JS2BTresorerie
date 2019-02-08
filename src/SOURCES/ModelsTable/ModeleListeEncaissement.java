@@ -29,7 +29,7 @@ public class ModeleListeEncaissement extends AbstractTableModel {
         this.ecouteurModele = ecouteurModele;
     }
     
-    public void setListeDecaissements(Vector<InterfaceEncaissement> listeData) {
+    public void setListeEncaissements(Vector<InterfaceEncaissement> listeData) {
         this.listeData = listeData;
         redessinerTable();
     }
