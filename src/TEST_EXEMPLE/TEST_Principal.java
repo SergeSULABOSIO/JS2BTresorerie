@@ -6,10 +6,19 @@
 package TEST_EXEMPLE;
 
 import SOURCES.CallBack.EcouteurTresorerie;
+import SOURCES.Interface.InterfaceCharge;
+import SOURCES.Interface.InterfaceDecaissement;
+import SOURCES.Interface.InterfaceEncaissement;
+import SOURCES.Interface.InterfaceMonnaie;
+import SOURCES.Interface.InterfaceRevenu;
 import SOURCES.UI.Panel;
 import SOURCES.Utilitaires.DonneesTresorerie;
 import SOURCES.Utilitaires.ParametreTresorerie;
 import SOURCES.Utilitaires.SortiesTresorerie;
+import SOURCES.Utilitaires.Util;
+import static java.lang.Thread.sleep;
+import java.util.Date;
+import java.util.Vector;
 
 /**
  *
@@ -20,13 +29,18 @@ public class TEST_Principal extends javax.swing.JFrame {
     /**
      * Creates new form TEST_Principal
      */
-    
-    
-    private Panel gestionnaireTresorerie = null;
-    private ParametreTresorerie parametreTresorerie = null;
-    private DonneesTresorerie donneesTresorerie = null;
-    
-    
+    public Panel gestionnaireTresorerie = null;
+    public ParametreTresorerie parametreTresorerie = null;
+    public DonneesTresorerie donneesTresorerie = null;
+    public int idUtilisateur = 1;
+    public String nomUtilisateur = "Serge SULA BOSIO";
+    public int idMonnaie = 1;
+    public String monnaie = "$";
+
+    public TEST_Entreprise entreprise = new TEST_Entreprise(1, "ECOLE CARESIENNE DE KINSHASA", "7e Rue Limeté Industrielle, Kinshasa/RDC", "+243844803514", "infos@cartesien.org", "wwww.cartesien.org", "Equity Bank Congo SA", "Cartesien de Kinshasa", "00122114557892554", "IBN0012455", "CDKIN0012", "logo.png", "RCCM/KD/CD/4513", "IDN00111454", "IMP00124100");
+    public TEST_Exercice exercice = new TEST_Exercice(12, entreprise.getId(), idUtilisateur, nomUtilisateur, new Date(), Util.getDate_AjouterAnnee(new Date(), 1), InterfaceDecaissement.BETA_EXISTANT);
+    public TEST_Monnaie defaultMonnaie = new TEST_Monnaie(idMonnaie, entreprise.getId(), idUtilisateur, exercice.getId(), "Dollars Américains", monnaie, 1, 1620, new Date().getTime(), InterfaceEncaissement.BETA_EXISTANT);
+
     public TEST_Principal() {
         initComponents();
     }
@@ -122,8 +136,8 @@ public class TEST_Principal extends javax.swing.JFrame {
     private void ouvrir() {
         gestionnaireTresorerie = getGestionnaireTresorerie();
         //Chargement du gestionnaire sur l'onglet
-        tabPrincipal.addTab("Fiche d'inscription", gestionnaireTresorerie);
-        
+        tabPrincipal.addTab("Tresorerie (Encaissements & Decaissements)", gestionnaireTresorerie);
+
         //On séléctionne l'onglet actuel
         tabPrincipal.setSelectedComponent(gestionnaireTresorerie);
     }
@@ -131,10 +145,75 @@ public class TEST_Principal extends javax.swing.JFrame {
     private Panel getGestionnaireTresorerie() {
         return new Panel(tabPrincipal, getDonnees(), getParametres(), new EcouteurTresorerie() {
             @Override
-            public void onEnregistre(SortiesTresorerie sortiesFacture) {
+            public void onEnregistre(SortiesTresorerie sortiesTresorerie) {
                 //Ce que le système devra faire lorsque l'on clique sur le bouton ENREGISTRER
-                
+
+                Thread th = new Thread() {
+                    @Override
+                    public void run() {
+                        try {
+                            sortiesTresorerie.getEcouteurEnregistrement().onUploading("Chargement...");
+                            sleep(10);
+
+                            sortiesTresorerie.getListeEncaissements().forEach((Oeleve) -> {
+                                if (Oeleve.getBeta() == InterfaceEncaissement.BETA_MODIFIE || Oeleve.getBeta() == InterfaceEncaissement.BETA_NOUVEAU) {
+                                    System.out.println(" * " + Oeleve.toString());
+
+                                    //Après enregistrement
+                                    Oeleve.setBeta(InterfaceEncaissement.BETA_EXISTANT);
+                                }
+                            });
+
+                            sortiesTresorerie.getListeDecaissements().forEach((Oeleve) -> {
+                                if (Oeleve.getBeta() == InterfaceDecaissement.BETA_MODIFIE || Oeleve.getBeta() == InterfaceDecaissement.BETA_NOUVEAU) {
+                                    System.out.println(" * " + Oeleve.toString() + " : ");
+
+                                    //Après enregistrement
+                                    Oeleve.setBeta(InterfaceDecaissement.BETA_EXISTANT);
+                                }
+                            });
+
+                            sortiesTresorerie.getEcouteurEnregistrement().onDone("Enregistré!");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                th.start();
+
             }
         });
+    }
+
+    private DonneesTresorerie getDonnees() {
+        Vector<InterfaceEncaissement> listeEncaissements = new Vector<>();
+        listeEncaissements.addElement(new TEST_Encaissement(1, InterfaceEncaissement.DESTINATION_BANQUE, "0014578BN", new Date(), 100, defaultMonnaie.getId(), defaultMonnaie.getCode(), nomUtilisateur, "Loyer restaut YZ", 2, "Loyer restau", InterfaceRevenu.BETA_EXISTANT));
+
+        Vector<InterfaceDecaissement> listeDecaissements = new Vector<>();
+        listeDecaissements.addElement(new TEST_Decaissement(1, InterfaceDecaissement.SOURCE_BANQUE, "B0014578O", new Date(), 100, defaultMonnaie.getId(), defaultMonnaie.getCode(), nomUtilisateur, "Autres", 2, "Loyer restau", InterfaceRevenu.BETA_EXISTANT));
+
+        this.donneesTresorerie = new DonneesTresorerie(listeEncaissements, listeDecaissements);
+        return this.donneesTresorerie;
+    }
+
+    private ParametreTresorerie getParametres() {
+        //Les types des monnaies
+        Vector<InterfaceMonnaie> monnaies = new Vector<>();
+        monnaies.addElement(defaultMonnaie);
+        monnaies.addElement(new TEST_Monnaie(2, entreprise.getId(), idUtilisateur, exercice.getId(), "Francs congolais", "Fc", 1, 1, new Date().getTime() + 1, InterfaceEncaissement.BETA_EXISTANT));
+
+        //Les types des revenus
+        Vector<InterfaceRevenu> revenus = new Vector<>();
+        revenus.addElement(new TEST_Revenu(1, entreprise.getId(), idUtilisateur, exercice.getId(), defaultMonnaie.getId(), defaultMonnaie.getSignature(), "FRAIS SCOLAIRES", defaultMonnaie.getCode(), 100000, InterfaceEncaissement.BETA_EXISTANT));
+        revenus.addElement(new TEST_Revenu(2, entreprise.getId(), idUtilisateur, exercice.getId(), defaultMonnaie.getId(), defaultMonnaie.getSignature(), "LOYERS RESTAURANT", defaultMonnaie.getCode(), 10000, InterfaceEncaissement.BETA_EXISTANT));
+
+        //Les types des charges
+        Vector<InterfaceCharge> charges = new Vector<>();
+        charges.addElement(new TEST_Charge(1, entreprise.getId(), idUtilisateur, exercice.getId(), "SALAIRE STAFF", 50000, defaultMonnaie.getId(), defaultMonnaie.getSignature(), defaultMonnaie.getCode(), InterfaceEncaissement.BETA_EXISTANT));
+        charges.addElement(new TEST_Charge(2, entreprise.getId(), idUtilisateur, exercice.getId(), "ENERGIE", 50000, defaultMonnaie.getId(), defaultMonnaie.getSignature(), defaultMonnaie.getCode(), InterfaceEncaissement.BETA_EXISTANT));
+        charges.addElement(new TEST_Charge(3, entreprise.getId(), idUtilisateur, exercice.getId(), "TRANSPORT", 50000, defaultMonnaie.getId(), defaultMonnaie.getSignature(), defaultMonnaie.getCode(), InterfaceEncaissement.BETA_EXISTANT));
+
+        this.parametreTresorerie = new ParametreTresorerie(entreprise, exercice, monnaies, revenus, charges, nomUtilisateur, idUtilisateur);
+        return this.parametreTresorerie;
     }
 }

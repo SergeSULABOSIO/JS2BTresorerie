@@ -18,6 +18,9 @@ import SOURCES.CallBack.EcouteurEnregistrement;
 import SOURCES.CallBack.EcouteurTresorerie;
 import SOURCES.CallBack.EcouteurUpdateClose;
 import SOURCES.CallBack.EcouteurValeursChangees;
+import SOURCES.EditeursTable.EditeurDate;
+import SOURCES.EditeursTable.EditeurDestination;
+import SOURCES.EditeursTable.EditeurMonnaie;
 import SOURCES.EditeursTable.EditeurRevenu;
 import SOURCES.Interface.InterfaceDecaissement;
 import SOURCES.Interface.InterfaceEncaissement;
@@ -38,6 +41,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 
 /**
@@ -198,36 +202,26 @@ public class Panel extends javax.swing.JPanel {
         this.tableListeEncaissement.setRowHeight(25);
 
         //{"N°", "Date", "Destination", "Reference", "Motif", "Nature", "Effectué par", "Montant", "Monnaie"};
-        TableColumn col_No = this.tableListeEncaissement.getColumnModel().getColumn(0);
-        col_No.setPreferredWidth(40);
-        col_No.setMaxWidth(40);
+        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(0), 30, true, null);
+        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(1), 110, true, new EditeurDate());
+        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(2), 80, true, new EditeurDestination());
+        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(3), 150, false, null);
+        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(4), 150, false, null);
+        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(5), 150, true, new EditeurRevenu(parametreTresorerie));
+        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(6), 100, false, null);
+        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(7), 100, true, null);
+        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(8), 60, true, new EditeurMonnaie(parametreTresorerie));
+    }
 
-        TableColumn colDate = this.tableListeEncaissement.getColumnModel().getColumn(1);
-        colDate.setPreferredWidth(150);
-
-        TableColumn colDest = this.tableListeEncaissement.getColumnModel().getColumn(2);
-        colDest.setPreferredWidth(150);
-
-        TableColumn colRef = this.tableListeEncaissement.getColumnModel().getColumn(3);
-        colRef.setPreferredWidth(150);
-
-        TableColumn colMot = this.tableListeEncaissement.getColumnModel().getColumn(4);
-        colMot.setPreferredWidth(140);
-        colMot.setMaxWidth(140);
-
-        TableColumn colNat = this.tableListeEncaissement.getColumnModel().getColumn(5);
-        colNat.setCellEditor(new EditeurRevenu(parametreTresorerie));
-        colNat.setPreferredWidth(90);
-        colNat.setMaxWidth(90);
-
-        TableColumn colEff = this.tableListeEncaissement.getColumnModel().getColumn(6);
-        colEff.setPreferredWidth(150);
-
-        TableColumn colMont = this.tableListeEncaissement.getColumnModel().getColumn(7);
-        colMont.setPreferredWidth(120);
-
-        TableColumn colMonn = this.tableListeEncaissement.getColumnModel().getColumn(8);
-        colMonn.setPreferredWidth(120);
+    private void setTaille(TableColumn column, int taille, boolean fixe, TableCellEditor editor) {
+        column.setPreferredWidth(taille);
+        if (fixe == true) {
+            column.setMaxWidth(taille);
+            column.setMinWidth(taille);
+        }
+        if (editor != null) {
+            column.setCellEditor(editor);
+        }
     }
 
     private void setBoutons() {
@@ -626,7 +620,7 @@ public class Panel extends javax.swing.JPanel {
             this.ecouteurTresorerie.onEnregistre(sortie);
         }
     }
-    
+
     public void exporterPDF() {
         int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous les exporter dans un fichier PDF?", "Avertissement", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION) {

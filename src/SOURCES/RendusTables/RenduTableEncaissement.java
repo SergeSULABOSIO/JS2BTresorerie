@@ -19,6 +19,7 @@ import SOURCES.ModelsTable.ModeleListeEncaissement;
 import SOURCES.UI.CelluleSimpleTableau;
 import SOURCES.Utilitaires.ParametreTresorerie;
 import SOURCES.Utilitaires.Util;
+import java.util.Date;
 
 /**
  *
@@ -56,7 +57,7 @@ public class RenduTableEncaissement implements TableCellRenderer {
     private String getMonnaie(int nature) {
         for(InterfaceMonnaie Imonnaie : this.parametreTresorerie.getMonnaies()){
             if(nature == Imonnaie.getId()){
-                return "" + Imonnaie.getNom();
+                return "" + Imonnaie.getCode();
             }
         }
         return "";
@@ -72,7 +73,7 @@ public class RenduTableEncaissement implements TableCellRenderer {
                 cellule = new CelluleSimpleTableau(" " + value + " ", CelluleSimpleTableau.ALIGNE_CENTRE, null);
                 break;
             case 1:
-                cellule = new CelluleSimpleTableau(" " + value + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, iconeEdition);
+                cellule = new CelluleSimpleTableau(" " + Util.getDateFrancais((Date)value) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, iconeEdition);
                 break;
             case 2:
                 cellule = new CelluleSimpleTableau(" " + getDestination(Integer.parseInt(value+"")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, iconeEdition);
@@ -87,10 +88,10 @@ public class RenduTableEncaissement implements TableCellRenderer {
                 cellule = new CelluleSimpleTableau(" " + getNature(Integer.parseInt(value+"")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, iconeEdition);
                 break;
             case 6:
-                cellule = new CelluleSimpleTableau(" " + Util.getMontantFrancais(Double.parseDouble(value+"")) + " ", CelluleSimpleTableau.ALIGNE_DROITE, iconeEdition);
+                cellule = new CelluleSimpleTableau(" " + value + " ", CelluleSimpleTableau.ALIGNE_DROITE, iconeEdition);
                 break;
             case 7:
-                cellule = new CelluleSimpleTableau(" " + value + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, iconeEdition);
+                cellule = new CelluleSimpleTableau(" " + Util.getMontantFrancais(Double.parseDouble(value+"")) + " ", CelluleSimpleTableau.ALIGNE_DROITE, iconeEdition);
                 break;
             case 8:
                 cellule = new CelluleSimpleTableau(" " + getMonnaie(Integer.parseInt(value+"")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, iconeEdition);

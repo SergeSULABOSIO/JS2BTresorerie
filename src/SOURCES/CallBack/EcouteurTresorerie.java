@@ -12,6 +12,6 @@ import SOURCES.Utilitaires.SortiesTresorerie;
  * @author HP Pavilion
  */
 public abstract class EcouteurTresorerie {
-    public abstract void onEnregistre(SortiesTresorerie sortiesFacture);
+    public abstract void onEnregistre(SortiesTresorerie sortiesTresorerie);
     
 }
