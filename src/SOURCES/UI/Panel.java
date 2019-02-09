@@ -5,9 +5,6 @@
  */
 package SOURCES.UI;
 
-
-
-
 import SOURCES.Utilitaires.MoteurRecherche;
 import BEAN_BARRE_OUTILS.BarreOutils;
 import BEAN_BARRE_OUTILS.Bouton;
@@ -31,12 +28,12 @@ import SOURCES.RendusTables.RenduTableDecaissement;
 import SOURCES.RendusTables.RenduTableEncaissement;
 import SOURCES.Utilitaires.DonneesTresorerie;
 import SOURCES.Utilitaires.ParametreTresorerie;
+import SOURCES.Utilitaires.SortiesTresorerie;
 import SOURCES.Utilitaires.Util;
 import SOURCES.Utilitaires.XX_Decaissement;
 import SOURCES.Utilitaires.XX_Encaissement;
 import java.awt.event.MouseEvent;
 import java.util.Date;
-import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -109,8 +106,6 @@ public class Panel extends javax.swing.JPanel {
         return new Date();
     }
 
-    
-
     public String getCritereSexe() {
         return this.chSexe.getSelectedItem() + "";
     }
@@ -123,8 +118,6 @@ public class Panel extends javax.swing.JPanel {
         return this.chStatus.getSelectedItem() + "";
     }
 
-    
-    
     private void parametrerTableDecaissement() {
         this.modeleListeDecaissement = new ModeleListeDecaissement(scrollListeDecaissement, new EcouteurValeursChangees() {
             @Override
@@ -176,7 +169,7 @@ public class Panel extends javax.swing.JPanel {
 
         TableColumn colMont = this.tableListeEncaissement.getColumnModel().getColumn(7);
         colMont.setPreferredWidth(120);
-        
+
         TableColumn colMonn = this.tableListeEncaissement.getColumnModel().getColumn(8);
         colMonn.setPreferredWidth(120);
     }
@@ -232,12 +225,11 @@ public class Panel extends javax.swing.JPanel {
 
         TableColumn colMont = this.tableListeEncaissement.getColumnModel().getColumn(7);
         colMont.setPreferredWidth(120);
-        
+
         TableColumn colMonn = this.tableListeEncaissement.getColumnModel().getColumn(8);
         colMonn.setPreferredWidth(120);
     }
 
-    
     private void setBoutons() {
         btAjouter = new Bouton(12, "Ajouter", icones.getAjouter_02(), new BoutonListener() {
             @Override
@@ -362,11 +354,11 @@ public class Panel extends javax.swing.JPanel {
             public void setAjoutEncaissement(ModeleListeEncaissement modeleListeEncaissement) {
                 if (modeleListeEncaissement != null) {
                     int index = (modeleListeEncaissement.getRowCount() + 1);
-                    
+
                     Date date = new Date();
                     int id = -1;
                     int dest = InterfaceEncaissement.DESTINATION_CAISSE;
-                    String reference = dest+"ENC"+index;
+                    String reference = dest + "ENC" + index;
                     double montant = 0;
                     int idMonnaie = -1;
                     String monnaie = "";
@@ -375,7 +367,7 @@ public class Panel extends javax.swing.JPanel {
                     int idRevenu = -1;
                     String revenu = "";
                     int beta = InterfaceEncaissement.BETA_NOUVEAU;
-                    
+
                     modeleListeEncaissement.AjouterEncaissement(new XX_Encaissement(id, dest, reference, date, montant, idMonnaie, monnaie, effectuePar, motif, idRevenu, revenu, beta));
                     //On sélectionne la première ligne
                     tableListeEncaissement.setRowSelectionAllowed(true);
@@ -387,11 +379,11 @@ public class Panel extends javax.swing.JPanel {
             public void setAjoutDecaissement(ModeleListeDecaissement modeleListeDecaissement) {
                 if (modeleListeDecaissement != null) {
                     int index = (modeleListeDecaissement.getRowCount() + 1);
-                    
+
                     Date date = new Date();
                     int id = -1;
                     int source = InterfaceDecaissement.SOURCE_CAISSE;
-                    String reference = source+"DEC"+index;
+                    String reference = source + "DEC" + index;
                     double montant = 0;
                     int idMonnaie = -1;
                     String monnaie = "";
@@ -400,7 +392,7 @@ public class Panel extends javax.swing.JPanel {
                     int idCharge = -1;
                     String charge = "";
                     int beta = InterfaceDecaissement.BETA_NOUVEAU;
-                    
+
                     modeleListeDecaissement.AjouterDecaissement(new XX_Decaissement(id, source, reference, date, montant, idMonnaie, monnaie, beneficiaire, motif, idCharge, charge, beta));
                     //On sélectionne la première ligne
                     tableListeDecaissement.setRowSelectionAllowed(true);
@@ -408,7 +400,7 @@ public class Panel extends javax.swing.JPanel {
                 }
             }
         };
-        
+
         setBoutons();
         setMenuContextuel();
     }
@@ -531,16 +523,16 @@ public class Panel extends javax.swing.JPanel {
 
     private boolean mustBeSaved() {
         boolean rep = false;
-        //On vérifie dans la liste d'élèves
+        //On vérifie dans la liste d'encaissements
         for (InterfaceEncaissement Ienc : this.modeleListeEncaissement.getListeData()) {
-            if (Ienc.getBeta() == InterfaceEncaissement.BETA_MODIFIE || Ieleve.getBeta() == InterfaceEleve.BETA_NOUVEAU) {
+            if (Ienc.getBeta() == InterfaceEncaissement.BETA_MODIFIE || Ienc.getBeta() == InterfaceEncaissement.BETA_NOUVEAU) {
                 rep = true;
             }
         }
 
-        //On vérifie aussi dans la liste d'ayant-droits
+        //On vérifie aussi dans la liste de decaissements
         for (InterfaceDecaissement Idec : this.modeleListeDecaissement.getListeData()) {
-            if (Idec.getBeta() == InterfaceDecaissement.BETA_MODIFIE || Iayant.getBeta() == InterfaceAyantDroit.BETA_NOUVEAU) {
+            if (Idec.getBeta() == InterfaceDecaissement.BETA_MODIFIE || Idec.getBeta() == InterfaceDecaissement.BETA_NOUVEAU) {
                 rep = true;
             }
         }
@@ -552,12 +544,12 @@ public class Panel extends javax.swing.JPanel {
         if (mustBeSaved() == true) {
             int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous enregistrer les modifications et/ou ajouts apportés à ces données?", "Avertissement", JOptionPane.YES_NO_CANCEL_OPTION);
             if (dialogResult == JOptionPane.YES_OPTION) {
-                this.ecouteurEleveAyantDroit.onEnregistre(getSortieEleveAyantDroit(btEnregistrer, mEnregistrer));
+                this.ecouteurTresorerie.onEnregistre(getSortieTresorerie(btEnregistrer, mEnregistrer));
                 this.ecouteurClose.onFermer();
-            }else if(dialogResult == JOptionPane.NO_OPTION){
+            } else if (dialogResult == JOptionPane.NO_OPTION) {
                 this.ecouteurClose.onFermer();
             }
-        }else{
+        } else {
             int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir fermer cette fenêtre?", "Avertissement", JOptionPane.YES_NO_OPTION);
             if (dialogResult == JOptionPane.YES_OPTION) {
                 this.ecouteurClose.onFermer();
@@ -569,8 +561,8 @@ public class Panel extends javax.swing.JPanel {
         int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir imprimer ce document?", "Avertissement", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION) {
             try {
-                SortiesEleveAyantDroit sortie = getSortieEleveAyantDroit(btImprimer, mImprimer);
-                DocumentPDF documentPDF = new DocumentPDF(this, DocumentPDF.ACTION_IMPRIMER, sortie);
+                SortiesTresorerie sortie = getSortieTresorerie(btImprimer, mImprimer);
+                //DocumentPDF documentPDF = new DocumentPDF(this, DocumentPDF.ACTION_IMPRIMER, sortie);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -578,16 +570,11 @@ public class Panel extends javax.swing.JPanel {
     }
 
     public String getNomfichierPreuve() {
-        return "FicheElevesS2B.pdf";
+        return "TresorerieS2B.pdf";
     }
 
-    private SortiesEleveAyantDroit getSortieEleveAyantDroit(Bouton boutonDeclencheur, RubriqueSimple rubriqueDeclencheur) {
-        SortiesEleveAyantDroit sortieEA = new SortiesEleveAyantDroit(
-                this.parametreInscription.getListeFraises(),
-                this.parametreInscription.getListeClasses(),
-                this.modeleListeEleve.getListeData(),
-                this.modeleListeAyantDroit.getListeData(),
-                new EcouteurEnregistrement() {
+    private SortiesTresorerie getSortieTresorerie(Bouton boutonDeclencheur, RubriqueSimple rubriqueDeclencheur) {
+        EcouteurEnregistrement ecouteurEnregistrement = new EcouteurEnregistrement() {
             @Override
             public void onDone(String message) {
                 ecouteurClose.onActualiser(message, icones.getAimer_01());
@@ -597,13 +584,13 @@ public class Panel extends javax.swing.JPanel {
                 if (rubriqueDeclencheur != null) {
                     rubriqueDeclencheur.appliquerDroitAccessDynamique(true);
                 }
-                
-                //On redessine les tableau afin que les couleurs se réinitialisent / Tout redevient noire
-                if(modeleListeEleve != null){
-                    modeleListeEleve.redessinerTable();
+
+                //On redessine les tableaux afin que les couleurs se réinitialisent / Tout redevient noire
+                if (modeleListeEncaissement != null) {
+                    modeleListeEncaissement.redessinerTable();
                 }
-                if(modeleListeAyantDroit != null){
-                    modeleListeAyantDroit.redessinerTable();
+                if (modeleListeDecaissement != null) {
+                    modeleListeDecaissement.redessinerTable();
                 }
             }
 
@@ -628,24 +615,24 @@ public class Panel extends javax.swing.JPanel {
                     rubriqueDeclencheur.appliquerDroitAccessDynamique(false);
                 }
             }
-        });
-
+        };
+        SortiesTresorerie sortieEA = new SortiesTresorerie(ecouteurEnregistrement, this.modeleListeDecaissement.getListeData(), this.modeleListeEncaissement.getListeData());
         return sortieEA;
     }
 
     public void enregistrer() {
-        if (this.ecouteurEleveAyantDroit != null) {
-            SortiesEleveAyantDroit sortie = getSortieEleveAyantDroit(btEnregistrer, mEnregistrer);
-            this.ecouteurEleveAyantDroit.onEnregistre(sortie);
+        if (this.ecouteurTresorerie != null) {
+            SortiesTresorerie sortie = getSortieTresorerie(btEnregistrer, mEnregistrer);
+            this.ecouteurTresorerie.onEnregistre(sortie);
         }
     }
-
+    
     public void exporterPDF() {
         int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous les exporter dans un fichier PDF?", "Avertissement", JOptionPane.YES_NO_OPTION);
         if (dialogResult == JOptionPane.YES_OPTION) {
             try {
-                SortiesEleveAyantDroit sortie = getSortieEleveAyantDroit(btPDF, mPDF);
-                DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_OUVRIR, sortie);
+                SortiesTresorerie sortie = getSortieTresorerie(btPDF, mPDF);
+                //DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_OUVRIR, sortie);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -654,11 +641,11 @@ public class Panel extends javax.swing.JPanel {
 
     public void actualiser() {
         switch (indexTabSelected) {
-            case 0: //Monnaie
-                modeleListeEleve.actualiser();
+            case 0: //Encaissements
+                modeleListeEncaissement.actualiser();
                 break;
-            case 1: //Classe
-                modeleListeAyantDroit.actualiser();
+            case 1: //Decaissements
+                modeleListeDecaissement.actualiser();
                 break;
         }
     }
