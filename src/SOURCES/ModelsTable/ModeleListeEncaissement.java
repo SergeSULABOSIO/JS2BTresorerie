@@ -63,12 +63,12 @@ public class ModeleListeEncaissement extends AbstractTableModel {
     }
 
     public void actualiser() {
-        System.out.println("actualiser - Enseignant...");
+        //System.out.println("actualiser - Enseignant...");
         redessinerTable();
     }
 
     public void AjouterEncaissement(InterfaceEncaissement newEncaissement) {
-        this.listeData.add(newEncaissement);
+        this.listeData.add(0, newEncaissement);
         ecouteurModele.onValeurChangee();
         redessinerTable();
     }

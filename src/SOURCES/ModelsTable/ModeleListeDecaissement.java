@@ -63,12 +63,12 @@ public class ModeleListeDecaissement extends AbstractTableModel {
     }
 
     public void actualiser() {
-        System.out.println("actualiser - Enseignant...");
+        //System.out.println("actualiser - Enseignant...");
         redessinerTable();
     }
 
     public void AjouterDecaissement(InterfaceDecaissement newDecaissement) {
-        this.listeData.add(newDecaissement);
+        this.listeData.add(0, newDecaissement);
         ecouteurModele.onValeurChangee();
         redessinerTable();
     }

@@ -32,6 +32,7 @@ import SOURCES.RendusTables.RenduTableEncaissement;
 import SOURCES.Utilitaires.DonneesTresorerie;
 import SOURCES.Utilitaires.ParametreTresorerie;
 import SOURCES.Utilitaires.Util;
+import SOURCES.Utilitaires.XX_Decaissement;
 import SOURCES.Utilitaires.XX_Encaissement;
 import java.awt.event.MouseEvent;
 import java.util.Date;
@@ -98,9 +99,9 @@ public class Panel extends javax.swing.JPanel {
 
     public String getTitreDoc() {
         if (indexTabSelected == 0) {
-            return "LISTE D'ELEVES";
+            return "ENCAISSEMENTS";
         } else {
-            return "LISTE D'ELEVES AYANT-DROITS";
+            return "DECAISSEMENTS";
         }
     }
 
@@ -361,8 +362,21 @@ public class Panel extends javax.swing.JPanel {
             public void setAjoutEncaissement(ModeleListeEncaissement modeleListeEncaissement) {
                 if (modeleListeEncaissement != null) {
                     int index = (modeleListeEncaissement.getRowCount() + 1);
+                    
                     Date date = new Date();
-                    modeleListeEncaissement.AjouterEncaissement(new XX_Encaissement(-1, 0, date.getTime()+"", date, index, index, TOOL_TIP_TEXT_KEY, TOOL_TIP_TEXT_KEY, TOOL_TIP_TEXT_KEY, index, TOOL_TIP_TEXT_KEY, WIDTH));
+                    int id = -1;
+                    int dest = InterfaceEncaissement.DESTINATION_CAISSE;
+                    String reference = dest+"ENC"+index;
+                    double montant = 0;
+                    int idMonnaie = -1;
+                    String monnaie = "";
+                    String effectuePar = "";
+                    String motif = "";
+                    int idRevenu = -1;
+                    String revenu = "";
+                    int beta = InterfaceEncaissement.BETA_NOUVEAU;
+                    
+                    modeleListeEncaissement.AjouterEncaissement(new XX_Encaissement(id, dest, reference, date, montant, idMonnaie, monnaie, effectuePar, motif, idRevenu, revenu, beta));
                     //On sélectionne la première ligne
                     tableListeEncaissement.setRowSelectionAllowed(true);
                     tableListeEncaissement.setRowSelectionInterval(0, 0);
@@ -371,36 +385,30 @@ public class Panel extends javax.swing.JPanel {
 
             @Override
             public void setAjoutDecaissement(ModeleListeDecaissement modeleListeDecaissement) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
-        
-        
-        this.ecouteurAjout = new EcouteurAjout() {
-            @Override
-            public void setAjoutEleve(ModeleListeEleve modeleListeEleve) {
-                
-            }
-
-            @Override
-            public void setAjoutAyantDroit(ModeleListeAyantDroit modeleListeAyantDroit) {
-                if (modeleListeAyantDroit != null) {
-                    if (editeurEleve != null) {
-                        editeurEleve.initCombo();
-                        if (editeurEleve.getTailleCombo() != 0) {
-                            modeleListeAyantDroit.AjouterAyantDroit(new XX_Ayantdroit(-1, parametreInscription.getEntreprise().getId(), parametreInscription.getIdUtilisateur(), parametreInscription.getAnneeScolaire().getId(), -1, "", new Vector<LiaisonEleveFrais>(), (new Date()).getTime(), -1, InterfaceAyantDroit.BETA_NOUVEAU));
-                            //On sélectionne la première ligne
-                            tableListeDecaissement.setRowSelectionAllowed(true);
-                            tableListeDecaissement.setRowSelectionInterval(0, 0);
-                        } else {
-                            JOptionPane.showMessageDialog(parent, "Désolé, il n'y a plus d'élève à ajouter dans cette liste.", "Pas d'élève à ajouter", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }
-
+                if (modeleListeDecaissement != null) {
+                    int index = (modeleListeDecaissement.getRowCount() + 1);
+                    
+                    Date date = new Date();
+                    int id = -1;
+                    int source = InterfaceDecaissement.SOURCE_CAISSE;
+                    String reference = source+"DEC"+index;
+                    double montant = 0;
+                    int idMonnaie = -1;
+                    String monnaie = "";
+                    String beneficiaire = "";
+                    String motif = "";
+                    int idCharge = -1;
+                    String charge = "";
+                    int beta = InterfaceDecaissement.BETA_NOUVEAU;
+                    
+                    modeleListeDecaissement.AjouterDecaissement(new XX_Decaissement(id, source, reference, date, montant, idMonnaie, monnaie, beneficiaire, motif, idCharge, charge, beta));
+                    //On sélectionne la première ligne
+                    tableListeDecaissement.setRowSelectionAllowed(true);
+                    tableListeDecaissement.setRowSelectionInterval(0, 0);
                 }
             }
         };
-
+        
         setBoutons();
         setMenuContextuel();
     }
@@ -411,22 +419,22 @@ public class Panel extends javax.swing.JPanel {
 
     public void ajouter() {
         switch (indexTabSelected) {
-            case 0: //Tab eleve
-                this.ecouteurAjout.setAjoutEleve(modeleListeEleve);
+            case 0: //Tab Encaissement
+                this.ecouteurAjout.setAjoutEncaissement(modeleListeEncaissement);
                 break;
-            case 1: //Tab ayantdroit
-                this.ecouteurAjout.setAjoutAyantDroit(modeleListeAyantDroit);
+            case 1: //Tab Decaissement
+                this.ecouteurAjout.setAjoutDecaissement(modeleListeDecaissement);
                 break;
         }
     }
 
     public void supprimer() {
         switch (indexTabSelected) {
-            case 0: //Tab eleve
-                modeleListeEleve.SupprimerEleve(tableListeEncaissement.getSelectedRow());
+            case 0: //Tab Encaissement
+                modeleListeEncaissement.SupprimerEncaissement(tableListeEncaissement.getSelectedRow());
                 break;
-            case 1: //Tab ayantdroit
-                modeleListeAyantDroit.SupprimerAyantDroit(tableListeDecaissement.getSelectedRow());
+            case 1: //Tab Decaissement
+                modeleListeDecaissement.SupprimerDecaissement(tableListeDecaissement.getSelectedRow());
                 break;
         }
     }
@@ -434,13 +442,12 @@ public class Panel extends javax.swing.JPanel {
     public void vider() {
         this.ecouteurClose.onActualiser("Vidé!", icones.getInfos_01());
         this.chRecherche.setText("");
-        Date date = new Date();
         switch (indexTabSelected) {
-            case 0: //eleve
-                modeleListeEleve.viderListe();
+            case 0: //Tab Encaissement
+                modeleListeEncaissement.viderListe();
                 break;
-            case 1: //ayantdroit
-                modeleListeAyantDroit.viderListe();
+            case 1: //Tab Decaissement
+                modeleListeDecaissement.viderListe();
                 break;
         }
 
@@ -525,15 +532,15 @@ public class Panel extends javax.swing.JPanel {
     private boolean mustBeSaved() {
         boolean rep = false;
         //On vérifie dans la liste d'élèves
-        for (InterfaceEleve Ieleve : this.modeleListeEleve.getListeData()) {
-            if (Ieleve.getBeta() == InterfaceEleve.BETA_MODIFIE || Ieleve.getBeta() == InterfaceEleve.BETA_NOUVEAU) {
+        for (InterfaceEncaissement Ienc : this.modeleListeEncaissement.getListeData()) {
+            if (Ienc.getBeta() == InterfaceEncaissement.BETA_MODIFIE || Ieleve.getBeta() == InterfaceEleve.BETA_NOUVEAU) {
                 rep = true;
             }
         }
 
         //On vérifie aussi dans la liste d'ayant-droits
-        for (InterfaceAyantDroit Iayant : this.modeleListeAyantDroit.getListeData()) {
-            if (Iayant.getBeta() == InterfaceAyantDroit.BETA_MODIFIE || Iayant.getBeta() == InterfaceAyantDroit.BETA_NOUVEAU) {
+        for (InterfaceDecaissement Idec : this.modeleListeDecaissement.getListeData()) {
+            if (Idec.getBeta() == InterfaceDecaissement.BETA_MODIFIE || Iayant.getBeta() == InterfaceAyantDroit.BETA_NOUVEAU) {
                 rep = true;
             }
         }
