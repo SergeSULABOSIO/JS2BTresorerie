@@ -18,10 +18,12 @@ import SOURCES.CallBack.EcouteurEnregistrement;
 import SOURCES.CallBack.EcouteurTresorerie;
 import SOURCES.CallBack.EcouteurUpdateClose;
 import SOURCES.CallBack.EcouteurValeursChangees;
+import SOURCES.EditeursTable.EditeurCharge;
 import SOURCES.EditeursTable.EditeurDate;
 import SOURCES.EditeursTable.EditeurDestination;
 import SOURCES.EditeursTable.EditeurMonnaie;
 import SOURCES.EditeursTable.EditeurRevenu;
+import SOURCES.EditeursTable.EditeurSource;
 import SOURCES.Interface.InterfaceDecaissement;
 import SOURCES.Interface.InterfaceEncaissement;
 import SOURCES.Interface.InterfaceEntreprise;
@@ -146,36 +148,15 @@ public class Panel extends javax.swing.JPanel {
         this.tableListeDecaissement.setRowHeight(25);
 
         //{"N°", "Date", "Source", "Reference", "Motif", "Nature", "Bénéficiaire", "Montant", "Monnaie"};
-        TableColumn col_No = this.tableListeEncaissement.getColumnModel().getColumn(0);
-        col_No.setPreferredWidth(40);
-        col_No.setMaxWidth(40);
-
-        TableColumn colDate = this.tableListeEncaissement.getColumnModel().getColumn(1);
-        colDate.setPreferredWidth(150);
-
-        TableColumn colSourc = this.tableListeEncaissement.getColumnModel().getColumn(2);
-        colSourc.setPreferredWidth(150);
-
-        TableColumn colRef = this.tableListeEncaissement.getColumnModel().getColumn(3);
-        colRef.setPreferredWidth(150);
-
-        TableColumn colMot = this.tableListeEncaissement.getColumnModel().getColumn(4);
-        colMot.setPreferredWidth(140);
-        colMot.setMaxWidth(140);
-
-        TableColumn colNat = this.tableListeEncaissement.getColumnModel().getColumn(5);
-        colNat.setCellEditor(new EditeurRevenu(parametreTresorerie));
-        colNat.setPreferredWidth(90);
-        colNat.setMaxWidth(90);
-
-        TableColumn colBenn = this.tableListeEncaissement.getColumnModel().getColumn(6);
-        colBenn.setPreferredWidth(150);
-
-        TableColumn colMont = this.tableListeEncaissement.getColumnModel().getColumn(7);
-        colMont.setPreferredWidth(120);
-
-        TableColumn colMonn = this.tableListeEncaissement.getColumnModel().getColumn(8);
-        colMonn.setPreferredWidth(120);
+        setTaille(this.tableListeDecaissement.getColumnModel().getColumn(0), 30, true, null);
+        setTaille(this.tableListeDecaissement.getColumnModel().getColumn(1), 110, true, new EditeurDate());
+        setTaille(this.tableListeDecaissement.getColumnModel().getColumn(2), 80, true, new EditeurSource());
+        setTaille(this.tableListeDecaissement.getColumnModel().getColumn(3), 150, false, null);
+        setTaille(this.tableListeDecaissement.getColumnModel().getColumn(4), 150, false, null);
+        setTaille(this.tableListeDecaissement.getColumnModel().getColumn(5), 150, true, new EditeurCharge(parametreTresorerie));
+        setTaille(this.tableListeDecaissement.getColumnModel().getColumn(6), 130, true, null);
+        setTaille(this.tableListeDecaissement.getColumnModel().getColumn(7), 100, true, null);
+        setTaille(this.tableListeDecaissement.getColumnModel().getColumn(8), 60, true, new EditeurMonnaie(parametreTresorerie));
     }
 
     private void parametrerTableEncaissement() {
@@ -208,7 +189,7 @@ public class Panel extends javax.swing.JPanel {
         setTaille(this.tableListeEncaissement.getColumnModel().getColumn(3), 150, false, null);
         setTaille(this.tableListeEncaissement.getColumnModel().getColumn(4), 150, false, null);
         setTaille(this.tableListeEncaissement.getColumnModel().getColumn(5), 150, true, new EditeurRevenu(parametreTresorerie));
-        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(6), 100, false, null);
+        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(6), 130, true, null);
         setTaille(this.tableListeEncaissement.getColumnModel().getColumn(7), 100, true, null);
         setTaille(this.tableListeEncaissement.getColumnModel().getColumn(8), 60, true, new EditeurMonnaie(parametreTresorerie));
     }
@@ -354,8 +335,8 @@ public class Panel extends javax.swing.JPanel {
                     int dest = InterfaceEncaissement.DESTINATION_CAISSE;
                     String reference = dest + "ENC" + index;
                     double montant = 0;
-                    int idMonnaie = -1;
-                    String monnaie = "";
+                    int idMonnaie = parametreTresorerie.getMonnaies().firstElement().getId();
+                    String monnaie = parametreTresorerie.getMonnaies().firstElement().getCode();
                     String effectuePar = "";
                     String motif = "";
                     int idRevenu = -1;
@@ -379,8 +360,8 @@ public class Panel extends javax.swing.JPanel {
                     int source = InterfaceDecaissement.SOURCE_CAISSE;
                     String reference = source + "DEC" + index;
                     double montant = 0;
-                    int idMonnaie = -1;
-                    String monnaie = "";
+                    int idMonnaie = parametreTresorerie.getMonnaies().firstElement().getId();
+                    String monnaie = parametreTresorerie.getMonnaies().firstElement().getCode();
                     String beneficiaire = "";
                     String motif = "";
                     int idCharge = -1;
