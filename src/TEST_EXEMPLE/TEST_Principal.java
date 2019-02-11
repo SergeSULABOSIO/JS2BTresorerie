@@ -39,7 +39,7 @@ public class TEST_Principal extends javax.swing.JFrame {
 
     public TEST_Entreprise entreprise = new TEST_Entreprise(1, "ECOLE CARESIENNE DE KINSHASA", "7e Rue Limeté Industrielle, Kinshasa/RDC", "+243844803514", "infos@cartesien.org", "wwww.cartesien.org", "Equity Bank Congo SA", "Cartesien de Kinshasa", "00122114557892554", "IBN0012455", "CDKIN0012", "logo.png", "RCCM/KD/CD/4513", "IDN00111454", "IMP00124100");
     public TEST_Exercice exercice = new TEST_Exercice(12, entreprise.getId(), idUtilisateur, nomUtilisateur, new Date(), Util.getDate_AjouterAnnee(new Date(), 1), InterfaceDecaissement.BETA_EXISTANT);
-    public TEST_Monnaie defaultMonnaie = new TEST_Monnaie(idMonnaie, entreprise.getId(), idUtilisateur, exercice.getId(), "Dollars Américains", monnaie, 1, 1620, new Date().getTime(), InterfaceEncaissement.BETA_EXISTANT);
+    public TEST_Monnaie defaultMonnaie = new TEST_Monnaie(idMonnaie, entreprise.getId(), idUtilisateur, exercice.getId(), "Dollars Américains", monnaie, InterfaceMonnaie.NATURE_MONNAIE_ETRANGERE, 1620, new Date().getTime(), InterfaceEncaissement.BETA_EXISTANT);
 
     public TEST_Principal() {
         initComponents();
@@ -200,8 +200,8 @@ public class TEST_Principal extends javax.swing.JFrame {
         //Les types des monnaies
         Vector<InterfaceMonnaie> monnaies = new Vector<>();
         monnaies.addElement(defaultMonnaie);
-        monnaies.addElement(new TEST_Monnaie(2, entreprise.getId(), idUtilisateur, exercice.getId(), "Francs congolais", "Fc", 1, 1, new Date().getTime() + 1, InterfaceEncaissement.BETA_EXISTANT));
-        monnaies.addElement(new TEST_Monnaie(3, entreprise.getId(), idUtilisateur, exercice.getId(), "Euro", "E", 1, 1, new Date().getTime() + 1, InterfaceEncaissement.BETA_EXISTANT));
+        monnaies.addElement(new TEST_Monnaie(2, entreprise.getId(), idUtilisateur, exercice.getId(), "Francs congolais", "Fc", InterfaceMonnaie.NATURE_MONNAIE_LOCALE, 1, new Date().getTime() + 1, InterfaceEncaissement.BETA_EXISTANT));
+        monnaies.addElement(new TEST_Monnaie(3, entreprise.getId(), idUtilisateur, exercice.getId(), "Euro", "Euro", InterfaceMonnaie.NATURE_MONNAIE_ETRANGERE, 1800, new Date().getTime() + 1, InterfaceEncaissement.BETA_EXISTANT));
 
         //Les types des revenus
         Vector<InterfaceRevenu> revenus = new Vector<>();
