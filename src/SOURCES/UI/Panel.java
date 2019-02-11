@@ -79,6 +79,8 @@ public class Panel extends javax.swing.JPanel {
 
     public DonneesTresorerie donneesTresorerie;
     public ParametreTresorerie parametreTresorerie;
+    public double totalEncaissement = 0;
+    public double totalDecaissement = 0;
 
     public Panel(JTabbedPane parent, DonneesTresorerie donneesTresorerie, ParametreTresorerie parametreTresorerie, EcouteurTresorerie ecouteurTresorerie) {
         this.initComponents();
@@ -95,7 +97,9 @@ public class Panel extends javax.swing.JPanel {
         setIconesTabs();
 
         initMonnaieTotaux();
-        actualiserTotaux("Panel");
+        //actualiserTotaux("Panel");
+        actualiserTotalDecaissement();
+        actualiserTotalEncaissement();
         activerCriteres();
     }
 
@@ -136,18 +140,18 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private void initMonnaieTotaux() {
-        String labTaux = "Taux : ";
+        String labTaux = "Taux de change des monnaies enregistrées: ";
         InterfaceMonnaie monnaieLocal = null;
         combototMonnaie.removeAllItems();
         for (InterfaceMonnaie monnaie : this.parametreTresorerie.getMonnaies()) {
             combototMonnaie.addItem(monnaie.getCode() + " - " + monnaie.getNom());
-            if(monnaie.getTauxMonnaieLocale() == 1){
+            if (monnaie.getTauxMonnaieLocale() == 1) {
                 monnaieLocal = monnaie;
             }
         }
         for (InterfaceMonnaie monnaie : this.parametreTresorerie.getMonnaies()) {
-            if(monnaie != monnaieLocal){
-                labTaux += " 1 " + monnaie.getCode() + " = " + monnaie.getTauxMonnaieLocale() + " " + monnaieLocal.getCode() + ", ";
+            if (monnaie != monnaieLocal) {
+                labTaux += " 1 " + monnaie.getCode() + " = " + Util.getMontantFrancais(monnaie.getTauxMonnaieLocale()) + " " + monnaieLocal.getCode() + ", ";
             }
         }
         labTauxDeChange.setText(labTaux);
@@ -180,52 +184,110 @@ public class Panel extends javax.swing.JPanel {
                 double montMonLocal = intEncaiss.getMontant() * ImonnaieOrigine.getTauxMonnaieLocale();
                 return (montMonLocal / ImonnaieOutput.getTauxMonnaieLocale());
             }
-        }else{
+        } else {
             return 0;
         }
+    }
+
+    private double getMontant(InterfaceMonnaie ImonnaieOutput, InterfaceDecaissement intDecaiss) {
+        if (intDecaiss != null && ImonnaieOutput != null) {
+            if (ImonnaieOutput.getId() == intDecaiss.getIdMonnaie()) {
+                return intDecaiss.getMontant();
+            } else {
+                InterfaceMonnaie ImonnaieOrigine = getMonnaie(intDecaiss.getIdMonnaie());
+                double montMonLocal = intDecaiss.getMontant() * ImonnaieOrigine.getTauxMonnaieLocale();
+                return (montMonLocal / ImonnaieOutput.getTauxMonnaieLocale());
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    private void actualiserTotalEncaissement() {
+        double totalListe = 0;
+        InterfaceMonnaie ImonnaieOutput = null;
+        if (modeleListeEncaissement != null) {
+            ImonnaieOutput = getSelectedMonnaieTotaux();
+            for (InterfaceEncaissement intEncaiss : modeleListeEncaissement.getListeData()) {
+                totalListe += getMontant(ImonnaieOutput, intEncaiss);
+            }
+        }
+
+        //Pour la selection
+        int[] tabLignesSelected = tableListeEncaissement.getSelectedRows();
+        double totalSel = 0;
+        for (int i = 0; i < tabLignesSelected.length; i++) {
+            if (tabLignesSelected[i] != -1) {
+                if (modeleListeEncaissement != null) {
+                    InterfaceEncaissement intEncaiss = modeleListeEncaissement.getEncaissement(tabLignesSelected[i]);
+                    if (intEncaiss != null && ImonnaieOutput != null) {
+                        //totalSel += intEncaiss.getMontant();
+                        totalSel += getMontant(ImonnaieOutput, intEncaiss);
+                    }
+                }
+            }
+        }
+
+        String monnaieOutput = "";
+        if (ImonnaieOutput != null) {
+            monnaieOutput = ImonnaieOutput.getCode();
+        }
+        String montantSelected = "";
+        if (tabLignesSelected.length != 0) {
+            montantSelected = "| Sélection [" + tabLignesSelected.length + "] : " + Util.getMontantFrancais(totalSel) + " " + monnaieOutput;
+        }
+        totalEncaissement = totalListe;
+        String solde = "SOLDE: " + Util.getMontantFrancais((totalEncaissement - totalDecaissement)) + " " + monnaieOutput;
+        labTotauxEncaissement.setText("ENCAISSEMENT: " + Util.getMontantFrancais(totalListe) + " " + monnaieOutput + " " + montantSelected);
+        labTotauxSolde.setText(solde);
+    }
+
+    private void actualiserTotalDecaissement() {
+        double totalListe = 0;
+        InterfaceMonnaie ImonnaieOutput = null;
+        if (modeleListeDecaissement != null) {
+            ImonnaieOutput = getSelectedMonnaieTotaux();
+            for (InterfaceDecaissement intDecaiss : modeleListeDecaissement.getListeData()) {
+                totalListe += getMontant(ImonnaieOutput, intDecaiss);
+            }
+        }
+
+        //Pour la selection
+        int[] tabLignesSelected = tableListeDecaissement.getSelectedRows();
+        double totalSel = 0;
+        for (int i = 0; i < tabLignesSelected.length; i++) {
+            if (tabLignesSelected[i] != -1) {
+                if (modeleListeDecaissement != null) {
+                    InterfaceDecaissement intDecaiss = modeleListeDecaissement.getDecaissement(tabLignesSelected[i]);
+                    if (intDecaiss != null && ImonnaieOutput != null) {
+                        //totalSel += intEncaiss.getMontant();
+                        totalSel += getMontant(ImonnaieOutput, intDecaiss);
+                    }
+                }
+            }
+        }
+
+        String monnaieOutput = "";
+        if (ImonnaieOutput != null) {
+            monnaieOutput = ImonnaieOutput.getCode();
+        }
+        String montantSelected = "";
+        if (tabLignesSelected.length != 0) {
+            montantSelected = "| Sélection [" + tabLignesSelected.length + "] : " + Util.getMontantFrancais(totalSel) + " " + monnaieOutput;
+        }
+        totalDecaissement = totalListe;
+        String solde = "SOLDE: " + Util.getMontantFrancais((totalEncaissement - totalDecaissement)) + " " + monnaieOutput;
+        labTotauxDecaissement.setText("DECAISSEMENT: " + Util.getMontantFrancais(totalListe) + " " + monnaieOutput + " " + montantSelected);
+        labTotauxSolde.setText(solde);
     }
 
     private void actualiserTotaux(String methode) {
         if (indexTabSelected == 0) {//Encaissement
             System.out.println("actualiserTotaux - Encaissement - " + methode);
-            double totalListe = 0;
-            InterfaceMonnaie ImonnaieOutput = null;
-            if (modeleListeEncaissement != null) {
-                ImonnaieOutput = getSelectedMonnaieTotaux();
-                for (InterfaceEncaissement intEncaiss : modeleListeEncaissement.getListeData()) {
-                    totalListe += getMontant(ImonnaieOutput, intEncaiss);
-                }
-            }
-
-            //Pour la selection
-            int[] tabLignesSelected = tableListeEncaissement.getSelectedRows();
-            double totalSel = 0;
-            for (int i = 0; i < tabLignesSelected.length; i++) {
-                if (tabLignesSelected[i] != -1) {
-                    if (modeleListeEncaissement != null) {
-                        InterfaceEncaissement intEncaiss = modeleListeEncaissement.getEncaissement(tabLignesSelected[i]);
-                        if (intEncaiss != null && ImonnaieOutput != null) {
-                            //totalSel += intEncaiss.getMontant();
-                            totalSel += getMontant(ImonnaieOutput, intEncaiss);
-                        }
-                    }
-                }
-            }
-
-            String monnaieOutput = "";
-            if(ImonnaieOutput != null){
-                monnaieOutput = ImonnaieOutput.getCode();
-            }
-            String montantSelected = "";
-            if(tabLignesSelected.length != 0){
-                montantSelected = "| Sélection [" + tabLignesSelected.length + "] : " + Util.getMontantFrancais(totalSel)+" " + monnaieOutput;
-            }
-            labTotauxNormale.setText("Encaissement - Total : " + Util.getMontantFrancais(totalListe) + " " + monnaieOutput + " " + montantSelected);
+            actualiserTotalEncaissement();
         } else {
             System.out.println("actualiserTotaux - Decaissement - " + methode);
-            //Pour la selection
-            int[] tabLignesSelected = tableListeDecaissement.getSelectedRows();
-            labTotauxNormale.setText("Decaissement - Total : 000000000 $");
+            actualiserTotalDecaissement();
         }
     }
 
@@ -245,6 +307,7 @@ public class Panel extends javax.swing.JPanel {
         if (this.donneesTresorerie != null) {
             if (this.donneesTresorerie.getDecaissements().size() != 0) {
                 modeleListeDecaissement.setListeDecaissements(this.donneesTresorerie.getDecaissements());
+
             }
         }
 
@@ -268,7 +331,7 @@ public class Panel extends javax.swing.JPanel {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (e.getValueIsAdjusting() == false) {
-                    //actualiserTotaux("ecouterSelection - Table Decaissement");
+                    actualiserTotaux("ecouterSelection - Table Decaissement");
                 }
             }
         });
@@ -290,6 +353,7 @@ public class Panel extends javax.swing.JPanel {
         if (this.donneesTresorerie != null) {
             if (this.donneesTresorerie.getEncaissements().size() != 0) {
                 modeleListeEncaissement.setListeEncaissements(this.donneesTresorerie.getEncaissements());
+
             }
         }
 
@@ -545,7 +609,9 @@ public class Panel extends javax.swing.JPanel {
     private void setIconesTabs() {
         this.tabPrincipal.setIconAt(0, icones.getEntrer_01());  //Encaissement
         this.tabPrincipal.setIconAt(1, icones.getSortie_01());  //Decaissement
-        this.labTotauxNormale.setIcon(icones.getNombre_01());
+        this.labTotauxEncaissement.setIcon(icones.getNombre_01());
+        this.labTotauxDecaissement.setIcon(icones.getNombre_01());
+        this.labTotauxSolde.setIcon(icones.getNombre_01());
     }
 
     private void setMenuContextuel() {
@@ -786,8 +852,10 @@ public class Panel extends javax.swing.JPanel {
         btCriteres = new javax.swing.JToggleButton();
         panelTotaux = new javax.swing.JPanel();
         combototMonnaie = new javax.swing.JComboBox<>();
-        labTotauxNormale = new javax.swing.JLabel();
+        labTotauxEncaissement = new javax.swing.JLabel();
         labTauxDeChange = new javax.swing.JLabel();
+        labTotauxDecaissement = new javax.swing.JLabel();
+        labTotauxSolde = new javax.swing.JLabel();
         panelCriteres = new javax.swing.JPanel();
         chClasse = new javax.swing.JComboBox<>();
         chSexe = new javax.swing.JComboBox<>();
@@ -909,13 +977,21 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
-        labTotauxNormale.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
-        labTotauxNormale.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
-        labTotauxNormale.setText("Total : 0000000000 $ ");
+        labTotauxEncaissement.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        labTotauxEncaissement.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        labTotauxEncaissement.setText("Total : 0000000000 $ ");
 
         labTauxDeChange.setFont(new java.awt.Font("Tahoma", 2, 10)); // NOI18N
         labTauxDeChange.setForeground(new java.awt.Color(51, 51, 255));
         labTauxDeChange.setText("Taux");
+
+        labTotauxDecaissement.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        labTotauxDecaissement.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        labTotauxDecaissement.setText("Total : 0000000000 $ ");
+
+        labTotauxSolde.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
+        labTotauxSolde.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        labTotauxSolde.setText("Total : 0000000000 $ ");
 
         javax.swing.GroupLayout panelTotauxLayout = new javax.swing.GroupLayout(panelTotaux);
         panelTotaux.setLayout(panelTotauxLayout);
@@ -927,17 +1003,23 @@ public class Panel extends javax.swing.JPanel {
                     .addComponent(labTauxDeChange, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(panelTotauxLayout.createSequentialGroup()
                         .addComponent(combototMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(labTotauxNormale, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addComponent(labTotauxEncaissement, javax.swing.GroupLayout.DEFAULT_SIZE, 609, Short.MAX_VALUE)
+                    .addComponent(labTotauxDecaissement, javax.swing.GroupLayout.DEFAULT_SIZE, 609, Short.MAX_VALUE)
+                    .addComponent(labTotauxSolde, javax.swing.GroupLayout.DEFAULT_SIZE, 609, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelTotauxLayout.setVerticalGroup(
             panelTotauxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelTotauxLayout.createSequentialGroup()
-                .addGroup(panelTotauxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(labTotauxNormale)
-                    .addComponent(combototMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(combototMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(labTotauxEncaissement)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(labTotauxDecaissement)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(labTotauxSolde)
+                .addGap(5, 5, 5)
                 .addComponent(labTauxDeChange)
                 .addGap(0, 5, Short.MAX_VALUE))
         );
@@ -1004,7 +1086,7 @@ public class Panel extends javax.swing.JPanel {
                 .addGap(5, 5, 5)
                 .addComponent(panelCriteres, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 274, Short.MAX_VALUE)
+                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
                 .addGap(5, 5, 5)
                 .addComponent(panelTotaux, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1056,6 +1138,8 @@ public class Panel extends javax.swing.JPanel {
     private void combototMonnaieItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_combototMonnaieItemStateChanged
         // TODO add your handling code here:
         if (evt.getStateChange() == ItemEvent.SELECTED) {
+            actualiserTotalDecaissement();
+            actualiserTotalEncaissement();
             actualiserTotaux("combototMonnaieItemStateChanged");
         }
     }//GEN-LAST:event_combototMonnaieItemStateChanged
@@ -1082,7 +1166,9 @@ public class Panel extends javax.swing.JPanel {
     private javax.swing.JButton jButton5;
     private javax.swing.JLabel labInfos;
     private javax.swing.JLabel labTauxDeChange;
-    private javax.swing.JLabel labTotauxNormale;
+    private javax.swing.JLabel labTotauxDecaissement;
+    private javax.swing.JLabel labTotauxEncaissement;
+    private javax.swing.JLabel labTotauxSolde;
     private javax.swing.JPanel panelCriteres;
     private javax.swing.JPanel panelTotaux;
     private javax.swing.JScrollPane scrollListeDecaissement;
