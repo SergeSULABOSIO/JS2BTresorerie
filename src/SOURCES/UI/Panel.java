@@ -93,21 +93,10 @@ public class Panel extends javax.swing.JPanel {
         parametrerTableEncaissement();
         parametrerTableDecaissement();
         setIconesTabs();
-        
-        combototMonnaie.removeAllItems();
-        for (InterfaceMonnaie monnaie : this.parametreTresorerie.getMonnaies()) {
-            combototMonnaie.addItem(monnaie.getCode() +" - " + monnaie.getNom());
-        }
+
+        initMonnaieTotaux();
         actualiserTotaux("Panel");
-    }
-    
-    private InterfaceMonnaie getMonnaieTotaux(){
-        for (InterfaceMonnaie monnaie : this.parametreTresorerie.getMonnaies()) {
-            if((monnaie.getCode() +" - " + monnaie.getNom()).equals(combototMonnaie.getSelectedItem()+"")){
-                return monnaie;
-            }
-        }
-        return null;
+        activerCriteres();
     }
 
     public InterfaceEntreprise getEntreprise() {
@@ -146,15 +135,65 @@ public class Panel extends javax.swing.JPanel {
         return this.chStatus.getSelectedItem() + "";
     }
 
+    private void initMonnaieTotaux() {
+        String labTaux = "Taux : ";
+        InterfaceMonnaie monnaieLocal = null;
+        combototMonnaie.removeAllItems();
+        for (InterfaceMonnaie monnaie : this.parametreTresorerie.getMonnaies()) {
+            combototMonnaie.addItem(monnaie.getCode() + " - " + monnaie.getNom());
+            if(monnaie.getTauxMonnaieLocale() == 1){
+                monnaieLocal = monnaie;
+            }
+        }
+        for (InterfaceMonnaie monnaie : this.parametreTresorerie.getMonnaies()) {
+            if(monnaie != monnaieLocal){
+                labTaux += " 1 " + monnaie.getCode() + " = " + monnaie.getTauxMonnaieLocale() + " " + monnaieLocal.getCode() + ", ";
+            }
+        }
+        labTauxDeChange.setText(labTaux);
+    }
+
+    private InterfaceMonnaie getSelectedMonnaieTotaux() {
+        for (InterfaceMonnaie monnaie : this.parametreTresorerie.getMonnaies()) {
+            if ((monnaie.getCode() + " - " + monnaie.getNom()).equals(combototMonnaie.getSelectedItem() + "")) {
+                return monnaie;
+            }
+        }
+        return null;
+    }
+
+    private InterfaceMonnaie getMonnaie(int idMonnaie) {
+        for (InterfaceMonnaie monnaie : this.parametreTresorerie.getMonnaies()) {
+            if (monnaie.getId() == idMonnaie) {
+                return monnaie;
+            }
+        }
+        return null;
+    }
+
+    private double getMontant(InterfaceMonnaie ImonnaieOutput, InterfaceEncaissement intEncaiss) {
+        if (intEncaiss != null && ImonnaieOutput != null) {
+            if (ImonnaieOutput.getId() == intEncaiss.getIdMonnaie()) {
+                return intEncaiss.getMontant();
+            } else {
+                InterfaceMonnaie ImonnaieOrigine = getMonnaie(intEncaiss.getIdMonnaie());
+                double montMonLocal = intEncaiss.getMontant() * ImonnaieOrigine.getTauxMonnaieLocale();
+                return (montMonLocal / ImonnaieOutput.getTauxMonnaieLocale());
+            }
+        }else{
+            return 0;
+        }
+    }
+
     private void actualiserTotaux(String methode) {
-        if (indexTabSelected == 0) {
+        if (indexTabSelected == 0) {//Encaissement
             System.out.println("actualiserTotaux - Encaissement - " + methode);
             double totalListe = 0;
+            InterfaceMonnaie ImonnaieOutput = null;
             if (modeleListeEncaissement != null) {
+                ImonnaieOutput = getSelectedMonnaieTotaux();
                 for (InterfaceEncaissement intEncaiss : modeleListeEncaissement.getListeData()) {
-                    if (intEncaiss != null) {
-                        totalListe += intEncaiss.getMontant();
-                    }
+                    totalListe += getMontant(ImonnaieOutput, intEncaiss);
                 }
             }
 
@@ -165,14 +204,23 @@ public class Panel extends javax.swing.JPanel {
                 if (tabLignesSelected[i] != -1) {
                     if (modeleListeEncaissement != null) {
                         InterfaceEncaissement intEncaiss = modeleListeEncaissement.getEncaissement(tabLignesSelected[i]);
-                        if (intEncaiss != null) {
-                            totalSel += intEncaiss.getMontant();
+                        if (intEncaiss != null && ImonnaieOutput != null) {
+                            //totalSel += intEncaiss.getMontant();
+                            totalSel += getMontant(ImonnaieOutput, intEncaiss);
                         }
                     }
                 }
             }
-            
-            labTotauxNormale.setText("Encaissement - Total : " + Util.getMontantFrancais(totalListe)+ ", Sélection [" + tabLignesSelected.length + "] : " + Util.getMontantFrancais(totalSel));
+
+            String monnaieOutput = "";
+            if(ImonnaieOutput != null){
+                monnaieOutput = ImonnaieOutput.getCode();
+            }
+            String montantSelected = "";
+            if(tabLignesSelected.length != 0){
+                montantSelected = "| Sélection [" + tabLignesSelected.length + "] : " + Util.getMontantFrancais(totalSel)+" " + monnaieOutput;
+            }
+            labTotauxNormale.setText("Encaissement - Total : " + Util.getMontantFrancais(totalListe) + " " + monnaieOutput + " " + montantSelected);
         } else {
             System.out.println("actualiserTotaux - Decaissement - " + methode);
             //Pour la selection
@@ -211,15 +259,15 @@ public class Panel extends javax.swing.JPanel {
         setTaille(this.tableListeDecaissement.getColumnModel().getColumn(3), 150, false, null);
         setTaille(this.tableListeDecaissement.getColumnModel().getColumn(4), 150, false, null);
         setTaille(this.tableListeDecaissement.getColumnModel().getColumn(5), 150, true, new EditeurCharge(parametreTresorerie));
-        setTaille(this.tableListeDecaissement.getColumnModel().getColumn(6), 130, true, null);
+        setTaille(this.tableListeDecaissement.getColumnModel().getColumn(6), 130, false, null);
         setTaille(this.tableListeDecaissement.getColumnModel().getColumn(7), 100, true, null);
         setTaille(this.tableListeDecaissement.getColumnModel().getColumn(8), 60, true, new EditeurMonnaie(parametreTresorerie));
-        
+
         //On écoute les sélction
         tableListeDecaissement.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if(e.getValueIsAdjusting() == false){
+                if (e.getValueIsAdjusting() == false) {
                     //actualiserTotaux("ecouterSelection - Table Decaissement");
                 }
             }
@@ -256,23 +304,20 @@ public class Panel extends javax.swing.JPanel {
         setTaille(this.tableListeEncaissement.getColumnModel().getColumn(3), 150, false, null);
         setTaille(this.tableListeEncaissement.getColumnModel().getColumn(4), 150, false, null);
         setTaille(this.tableListeEncaissement.getColumnModel().getColumn(5), 150, true, new EditeurRevenu(parametreTresorerie));
-        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(6), 130, true, null);
+        setTaille(this.tableListeEncaissement.getColumnModel().getColumn(6), 130, false, null);
         setTaille(this.tableListeEncaissement.getColumnModel().getColumn(7), 100, true, null);
         setTaille(this.tableListeEncaissement.getColumnModel().getColumn(8), 60, true, new EditeurMonnaie(parametreTresorerie));
-        
+
         //On écoute les sélction
-        
         tableListeEncaissement.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
-                if(e.getValueIsAdjusting() == false){
+                if (e.getValueIsAdjusting() == false) {
                     actualiserTotaux("ecouterSelection - Table Encaissement");
                 }
             }
         });
     }
-    
-   
 
     private void setTaille(TableColumn column, int taille, boolean fixe, TableCellEditor editor) {
         column.setPreferredWidth(taille);
@@ -712,14 +757,10 @@ public class Panel extends javax.swing.JPanel {
         chStatus.setSelectedIndex(0);
 
         if (btCriteres.isSelected() == true) {
-            chClasse.setVisible(true);
-            chSexe.setVisible(true);
-            chStatus.setVisible(true);
+            panelCriteres.setVisible(true);
             btCriteres.setText("Critères [-]");
         } else {
-            chClasse.setVisible(false);
-            chSexe.setVisible(false);
-            chStatus.setVisible(false);
+            panelCriteres.setVisible(false);
             btCriteres.setText("Critères [+]");
         }
     }
@@ -742,12 +783,15 @@ public class Panel extends javax.swing.JPanel {
         tableListeDecaissement = new javax.swing.JTable();
         labInfos = new javax.swing.JLabel();
         chRecherche = new UI.JS2bTextField();
+        btCriteres = new javax.swing.JToggleButton();
+        panelTotaux = new javax.swing.JPanel();
+        combototMonnaie = new javax.swing.JComboBox<>();
+        labTotauxNormale = new javax.swing.JLabel();
+        labTauxDeChange = new javax.swing.JLabel();
+        panelCriteres = new javax.swing.JPanel();
         chClasse = new javax.swing.JComboBox<>();
         chSexe = new javax.swing.JComboBox<>();
         chStatus = new javax.swing.JComboBox<>();
-        btCriteres = new javax.swing.JToggleButton();
-        labTotauxNormale = new javax.swing.JLabel();
-        combototMonnaie = new javax.swing.JComboBox<>();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -847,12 +891,6 @@ public class Panel extends javax.swing.JPanel {
         chRecherche.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
         chRecherche.setTextInitial("Recherche");
 
-        chClasse.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        chSexe.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT GENRE", "MASCULIN", "FEMININ" }));
-
-        chStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT STATUS", "EL. ACTIF", "EL. INACTIF" }));
-
         btCriteres.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
         btCriteres.setText("Critères++");
         btCriteres.addActionListener(new java.awt.event.ActionListener() {
@@ -861,9 +899,8 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
-        labTotauxNormale.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
-        labTotauxNormale.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
-        labTotauxNormale.setText("Total : 0000000000 $ ");
+        panelTotaux.setBackground(new java.awt.Color(255, 255, 255));
+        panelTotaux.setBorder(javax.swing.BorderFactory.createTitledBorder("Total"));
 
         combototMonnaie.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         combototMonnaie.addItemListener(new java.awt.event.ItemListener() {
@@ -872,31 +909,89 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
+        labTotauxNormale.setFont(new java.awt.Font("Tahoma", 1, 13)); // NOI18N
+        labTotauxNormale.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
+        labTotauxNormale.setText("Total : 0000000000 $ ");
+
+        labTauxDeChange.setFont(new java.awt.Font("Tahoma", 2, 10)); // NOI18N
+        labTauxDeChange.setForeground(new java.awt.Color(51, 51, 255));
+        labTauxDeChange.setText("Taux");
+
+        javax.swing.GroupLayout panelTotauxLayout = new javax.swing.GroupLayout(panelTotaux);
+        panelTotaux.setLayout(panelTotauxLayout);
+        panelTotauxLayout.setHorizontalGroup(
+            panelTotauxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelTotauxLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelTotauxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(labTauxDeChange, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(panelTotauxLayout.createSequentialGroup()
+                        .addComponent(combototMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(labTotauxNormale, javax.swing.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        panelTotauxLayout.setVerticalGroup(
+            panelTotauxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelTotauxLayout.createSequentialGroup()
+                .addGroup(panelTotauxLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(labTotauxNormale)
+                    .addComponent(combototMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(labTauxDeChange)
+                .addGap(0, 5, Short.MAX_VALUE))
+        );
+
+        panelCriteres.setBackground(new java.awt.Color(255, 255, 255));
+        panelCriteres.setBorder(javax.swing.BorderFactory.createTitledBorder("Autres Critères de filtrage"));
+
+        chClasse.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
+        chSexe.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT GENRE", "MASCULIN", "FEMININ" }));
+
+        chStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT STATUS", "EL. ACTIF", "EL. INACTIF" }));
+
+        javax.swing.GroupLayout panelCriteresLayout = new javax.swing.GroupLayout(panelCriteres);
+        panelCriteres.setLayout(panelCriteresLayout);
+        panelCriteresLayout.setHorizontalGroup(
+            panelCriteresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCriteresLayout.createSequentialGroup()
+                .addGap(6, 6, 6)
+                .addComponent(chClasse, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(chSexe, 0, 170, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(chStatus, 0, 175, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        panelCriteresLayout.setVerticalGroup(
+            panelCriteresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCriteresLayout.createSequentialGroup()
+                .addGap(5, 5, 5)
+                .addGroup(panelCriteresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(chClasse, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(chSexe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(chStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(barreOutils, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 640, Short.MAX_VALUE)
+            .addComponent(panelTotaux, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(labInfos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(chClasse, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(chSexe, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(chStatus, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(chRecherche, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btCriteres))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(combototMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(labTotauxNormale, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                        .addComponent(btCriteres)))
                 .addContainerGap())
+            .addComponent(panelCriteres, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -906,17 +1001,12 @@ public class Panel extends javax.swing.JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(chRecherche, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btCriteres))
-                .addGap(4, 4, 4)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(chClasse, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chSexe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(labTotauxNormale)
-                    .addComponent(combototMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(5, 5, 5)
-                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 337, Short.MAX_VALUE)
+                .addComponent(panelCriteres, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 274, Short.MAX_VALUE)
+                .addGap(5, 5, 5)
+                .addComponent(panelTotaux, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(labInfos)
                 .addContainerGap())
@@ -955,29 +1045,29 @@ public class Panel extends javax.swing.JPanel {
 
     private void tableListeEncaissementKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableListeEncaissementKeyReleased
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_tableListeEncaissementKeyReleased
 
     private void tableListeDecaissementKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableListeDecaissementKeyReleased
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_tableListeDecaissementKeyReleased
 
     private void combototMonnaieItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_combototMonnaieItemStateChanged
         // TODO add your handling code here:
-        if(evt.getStateChange() == ItemEvent.SELECTED){
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
             actualiserTotaux("combototMonnaieItemStateChanged");
         }
     }//GEN-LAST:event_combototMonnaieItemStateChanged
 
     private void tableListeEncaissementMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableListeEncaissementMouseDragged
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_tableListeEncaissementMouseDragged
 
     private void tableListeDecaissementMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableListeDecaissementMouseDragged
         // TODO add your handling code here:
-        
+
     }//GEN-LAST:event_tableListeDecaissementMouseDragged
 
 
@@ -991,7 +1081,10 @@ public class Panel extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> combototMonnaie;
     private javax.swing.JButton jButton5;
     private javax.swing.JLabel labInfos;
+    private javax.swing.JLabel labTauxDeChange;
     private javax.swing.JLabel labTotauxNormale;
+    private javax.swing.JPanel panelCriteres;
+    private javax.swing.JPanel panelTotaux;
     private javax.swing.JScrollPane scrollListeDecaissement;
     private javax.swing.JScrollPane scrollListeEncaissement;
     private javax.swing.JTabbedPane tabPrincipal;

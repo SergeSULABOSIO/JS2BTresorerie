@@ -201,6 +201,7 @@ public class TEST_Principal extends javax.swing.JFrame {
         Vector<InterfaceMonnaie> monnaies = new Vector<>();
         monnaies.addElement(defaultMonnaie);
         monnaies.addElement(new TEST_Monnaie(2, entreprise.getId(), idUtilisateur, exercice.getId(), "Francs congolais", "Fc", 1, 1, new Date().getTime() + 1, InterfaceEncaissement.BETA_EXISTANT));
+        monnaies.addElement(new TEST_Monnaie(3, entreprise.getId(), idUtilisateur, exercice.getId(), "Euro", "E", 1, 1, new Date().getTime() + 1, InterfaceEncaissement.BETA_EXISTANT));
 
         //Les types des revenus
         Vector<InterfaceRevenu> revenus = new Vector<>();
