@@ -69,7 +69,6 @@ public class ModeleListeEncaissement extends AbstractTableModel {
 
     public void AjouterEncaissement(InterfaceEncaissement newEncaissement) {
         this.listeData.add(0, newEncaissement);
-        ecouteurModele.onValeurChangee();
         redessinerTable();
     }
 
@@ -97,8 +96,8 @@ public class ModeleListeEncaissement extends AbstractTableModel {
     }
 
     public void redessinerTable() {
-        ecouteurModele.onValeurChangee();
         fireTableDataChanged();
+        ecouteurModele.onValeurChangee();
     }
 
     @Override

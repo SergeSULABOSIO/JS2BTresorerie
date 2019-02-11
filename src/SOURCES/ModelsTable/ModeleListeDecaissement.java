@@ -69,7 +69,6 @@ public class ModeleListeDecaissement extends AbstractTableModel {
 
     public void AjouterDecaissement(InterfaceDecaissement newDecaissement) {
         this.listeData.add(0, newDecaissement);
-        ecouteurModele.onValeurChangee();
         redessinerTable();
     }
 
@@ -97,8 +96,8 @@ public class ModeleListeDecaissement extends AbstractTableModel {
     }
 
     public void redessinerTable() {
-        ecouteurModele.onValeurChangee();
         fireTableDataChanged();
+        ecouteurModele.onValeurChangee();
     }
 
     @Override
