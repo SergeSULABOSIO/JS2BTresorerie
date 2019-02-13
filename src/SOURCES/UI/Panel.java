@@ -30,6 +30,7 @@ import SOURCES.Interface.InterfaceEntreprise;
 import SOURCES.Interface.InterfaceMonnaie;
 import SOURCES.ModelsTable.ModeleListeDecaissement;
 import SOURCES.ModelsTable.ModeleListeEncaissement;
+import SOURCES.RenduComboBox.RenduCombo;
 import SOURCES.RendusTables.RenduTableDecaissement;
 import SOURCES.RendusTables.RenduTableEncaissement;
 import SOURCES.Utilitaires.DonneesTresorerie;
@@ -45,8 +46,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableCellEditor;
@@ -76,7 +75,7 @@ public class Panel extends javax.swing.JPanel {
     private ModeleListeEncaissement modeleListeEncaissement;
     private ModeleListeDecaissement modeleListeDecaissement;
     private MoteurRecherche gestionnaireRecherche;
-
+    
     public DonneesTresorerie donneesTresorerie;
     public ParametreTresorerie parametreTresorerie;
     public double totalEncaissement = 0;
@@ -101,6 +100,103 @@ public class Panel extends javax.swing.JPanel {
         actualiserTotalDecaissement();
         actualiserTotalEncaissement();
         activerCriteres();
+        
+        initCombos();
+        activerMoteurRecherche();
+    }
+    
+    
+    private void initCombos() {
+        /*
+        //Les sexes
+        chMonnaie.removeAllItems();
+        chMonnaie.addItem("MASCULIN & FEMININ");
+        chMonnaie.addItem("MASCULIN");
+        chMonnaie.addItem("FEMININ");
+        chMonnaie.setRenderer(new RenduCombo(icones.getClient_01()));
+
+        //Les status
+        chRevenu.removeAllItems();
+        chRevenu.addItem("REGULIER(E) & EXCLU(E)");
+        chRevenu.addItem("REGULIER(E)");
+        chRevenu.addItem("EXCLU(E)");
+        chRevenu.setRenderer(new RenduCombo(icones.getAimer_01()));
+
+        //Les calsses
+        chSource.removeAllItems();
+        chSource.addItem("TOUTES LES CLASSES");
+        if (this.parametreInscription.getListeClasses() != null) {
+            for (InterfaceClasse iClasse : this.parametreInscription.getListeClasses()) {
+                chSource.addItem(iClasse.getNom() + "");
+            }
+        }
+        chSource.setRenderer(new RenduCombo(icones.getClasse_01()));
+
+        chRecherche.setTextInitial("Recherche : Saisissez votre mot clé ici, puis tapez ENTER");
+        activerCriteres();
+        
+        
+        */
+        
+        
+        
+        
+        
+    }
+    
+    private void activerMoteurRecherche() {
+        
+        /*
+        gestionnaireRecherche = new MoteurRecherche(icones, chRecherche, ecouteurClose) {
+
+            @Override
+            public void chercher(String motcle) {
+                //classe
+                int idClasse = -1;
+                for (InterfaceClasse iClasse : parametreInscription.getListeClasses()) {
+                    if (iClasse.getNom().trim().equals(chSource.getSelectedItem() + "")) {
+                        idClasse = iClasse.getId();
+                        break;
+                    }
+                }
+
+                //Sexe
+                int sexe = -1;
+                switch (chMonnaie.getSelectedIndex()) {
+                    case 1:
+                        sexe = InterfaceEleve.SEXE_MASCULIN;
+                        break;
+                    case 2:
+                        sexe = InterfaceEleve.SEXE_FEMININ;
+                        break;
+                    default:
+                        sexe = -1;
+                        break;
+                }
+
+                //status
+                int status = -1;
+                switch (chRevenu.getSelectedIndex()) {
+                    case 1:
+                        status = InterfaceEleve.STATUS_ACTIF;
+                        break;
+                    case 2:
+                        status = InterfaceEleve.STATUS_INACTIF;
+                        break;
+                    default:
+                        status = -1;
+                        break;
+                }
+
+                modeleListeEleve.chercher(motcle, idClasse, sexe, status);
+                if (modeleListeAyantDroit != null) {
+                    modeleListeAyantDroit.chercher(modeleListeEleve.getListeData());
+                }
+            }
+        };
+        
+        */
+        
     }
 
     public InterfaceEntreprise getEntreprise() {
@@ -128,15 +224,15 @@ public class Panel extends javax.swing.JPanel {
     }
 
     public String getCritereSexe() {
-        return this.chSexe.getSelectedItem() + "";
+        return this.chMonnaie.getSelectedItem() + "";
     }
 
     public String getCritereClasse() {
-        return this.chClasse.getSelectedItem() + "";
+        return this.chSource.getSelectedItem() + "";
     }
 
     public String getCritereStatus() {
-        return this.chStatus.getSelectedItem() + "";
+        return this.chRevenu.getSelectedItem() + "";
     }
 
     private void initMonnaieTotaux() {
@@ -818,15 +914,15 @@ public class Panel extends javax.swing.JPanel {
         //System.out.println("btCriteres.isSelected() = " + btCriteres.isSelected());
         btCriteres.setIcon(icones.getParamètres_01());
         //On reinitialise les combo
-        chClasse.setSelectedIndex(0);
-        chSexe.setSelectedIndex(0);
-        chStatus.setSelectedIndex(0);
+        chSource.setSelectedIndex(0);
+        chMonnaie.setSelectedIndex(0);
+        chRevenu.setSelectedIndex(0);
 
         if (btCriteres.isSelected() == true) {
-            panelCriteres.setVisible(true);
+            panelCriteres_Encaissements.setVisible(true);
             btCriteres.setText("Critères [-]");
         } else {
-            panelCriteres.setVisible(false);
+            panelCriteres_Encaissements.setVisible(false);
             btCriteres.setText("Critères [+]");
         }
     }
@@ -856,10 +952,26 @@ public class Panel extends javax.swing.JPanel {
         labTauxDeChange = new javax.swing.JLabel();
         labTotauxDecaissement = new javax.swing.JLabel();
         labTotauxSolde = new javax.swing.JLabel();
-        panelCriteres = new javax.swing.JPanel();
-        chClasse = new javax.swing.JComboBox<>();
-        chSexe = new javax.swing.JComboBox<>();
-        chStatus = new javax.swing.JComboBox<>();
+        panelCriteres_Encaissements = new javax.swing.JPanel();
+        chSource = new javax.swing.JComboBox<>();
+        chMonnaie = new javax.swing.JComboBox<>();
+        chRevenu = new javax.swing.JComboBox<>();
+        chCharge = new javax.swing.JComboBox<>();
+        chDestination = new javax.swing.JComboBox<>();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jDateChooser1 = new com.toedter.calendar.JDateChooser();
+        jDateChooser2 = new com.toedter.calendar.JDateChooser();
+        panelCriteres_Decaissements = new javax.swing.JPanel();
+        chSource1 = new javax.swing.JComboBox<>();
+        chMonnaie1 = new javax.swing.JComboBox<>();
+        chRevenu1 = new javax.swing.JComboBox<>();
+        chCharge1 = new javax.swing.JComboBox<>();
+        chDestination1 = new javax.swing.JComboBox<>();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        jDateChooser3 = new com.toedter.calendar.JDateChooser();
+        jDateChooser4 = new com.toedter.calendar.JDateChooser();
 
         setBackground(new java.awt.Color(255, 255, 255));
 
@@ -1004,9 +1116,9 @@ public class Panel extends javax.swing.JPanel {
                     .addGroup(panelTotauxLayout.createSequentialGroup()
                         .addComponent(combototMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, 185, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(labTotauxEncaissement, javax.swing.GroupLayout.DEFAULT_SIZE, 609, Short.MAX_VALUE)
-                    .addComponent(labTotauxDecaissement, javax.swing.GroupLayout.DEFAULT_SIZE, 609, Short.MAX_VALUE)
-                    .addComponent(labTotauxSolde, javax.swing.GroupLayout.DEFAULT_SIZE, 609, Short.MAX_VALUE))
+                    .addComponent(labTotauxEncaissement, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(labTotauxDecaissement, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(labTotauxSolde, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelTotauxLayout.setVerticalGroup(
@@ -1024,36 +1136,145 @@ public class Panel extends javax.swing.JPanel {
                 .addGap(0, 5, Short.MAX_VALUE))
         );
 
-        panelCriteres.setBackground(new java.awt.Color(255, 255, 255));
-        panelCriteres.setBorder(javax.swing.BorderFactory.createTitledBorder("Autres Critères de filtrage"));
+        panelCriteres_Encaissements.setBackground(new java.awt.Color(255, 255, 255));
+        panelCriteres_Encaissements.setBorder(javax.swing.BorderFactory.createTitledBorder("Autres Critères de filtrage - Encaissements"));
 
-        chClasse.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        chSource.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SOURCE" }));
 
-        chSexe.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT GENRE", "MASCULIN", "FEMININ" }));
+        chMonnaie.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MONNAIE" }));
 
-        chStatus.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TOUT STATUS", "EL. ACTIF", "EL. INACTIF" }));
+        chRevenu.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "REVENU" }));
 
-        javax.swing.GroupLayout panelCriteresLayout = new javax.swing.GroupLayout(panelCriteres);
-        panelCriteres.setLayout(panelCriteresLayout);
-        panelCriteresLayout.setHorizontalGroup(
-            panelCriteresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCriteresLayout.createSequentialGroup()
-                .addGap(6, 6, 6)
-                .addComponent(chClasse, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(chSexe, 0, 170, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chStatus, 0, 175, Short.MAX_VALUE)
+        chCharge.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "CHARGE" }));
+
+        chDestination.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "DESTINATION" }));
+
+        jLabel1.setText("Entre");
+
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel2.setText("Et");
+
+        jDateChooser1.setBackground(new java.awt.Color(255, 255, 255));
+
+        jDateChooser2.setBackground(new java.awt.Color(255, 255, 255));
+
+        javax.swing.GroupLayout panelCriteres_EncaissementsLayout = new javax.swing.GroupLayout(panelCriteres_Encaissements);
+        panelCriteres_Encaissements.setLayout(panelCriteres_EncaissementsLayout);
+        panelCriteres_EncaissementsLayout.setHorizontalGroup(
+            panelCriteres_EncaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+            .addGroup(panelCriteres_EncaissementsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelCriteres_EncaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelCriteres_EncaissementsLayout.createSequentialGroup()
+                        .addComponent(chMonnaie, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chRevenu, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chCharge, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(panelCriteres_EncaissementsLayout.createSequentialGroup()
+                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jDateChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jDateChooser1, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chSource, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chDestination, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                 .addContainerGap())
         );
-        panelCriteresLayout.setVerticalGroup(
-            panelCriteresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelCriteresLayout.createSequentialGroup()
+        panelCriteres_EncaissementsLayout.setVerticalGroup(
+            panelCriteres_EncaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCriteres_EncaissementsLayout.createSequentialGroup()
                 .addGap(5, 5, 5)
-                .addGroup(panelCriteresLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(chClasse, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chSexe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(chStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(panelCriteres_EncaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelCriteres_EncaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jDateChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jDateChooser2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(panelCriteres_EncaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(chSource, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(chDestination, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelCriteres_EncaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(chCharge, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(panelCriteres_EncaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(chMonnaie, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(chRevenu, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        panelCriteres_Decaissements.setBackground(new java.awt.Color(255, 255, 255));
+        panelCriteres_Decaissements.setBorder(javax.swing.BorderFactory.createTitledBorder("Autres Critères de filtrage - Décaissements"));
+
+        chSource1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SOURCE" }));
+
+        chMonnaie1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MONNAIE" }));
+
+        chRevenu1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "REVENU" }));
+
+        chCharge1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "CHARGE" }));
+
+        chDestination1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "DESTINATION" }));
+
+        jLabel3.setText("Entre");
+
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel4.setText("Et");
+
+        jDateChooser3.setBackground(new java.awt.Color(255, 255, 255));
+
+        jDateChooser4.setBackground(new java.awt.Color(255, 255, 255));
+
+        javax.swing.GroupLayout panelCriteres_DecaissementsLayout = new javax.swing.GroupLayout(panelCriteres_Decaissements);
+        panelCriteres_Decaissements.setLayout(panelCriteres_DecaissementsLayout);
+        panelCriteres_DecaissementsLayout.setHorizontalGroup(
+            panelCriteres_DecaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelCriteres_DecaissementsLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(panelCriteres_DecaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelCriteres_DecaissementsLayout.createSequentialGroup()
+                        .addComponent(chMonnaie1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chRevenu1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chCharge1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(panelCriteres_DecaissementsLayout.createSequentialGroup()
+                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jDateChooser4, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jDateChooser3, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chSource1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(chDestination1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        panelCriteres_DecaissementsLayout.setVerticalGroup(
+            panelCriteres_DecaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelCriteres_DecaissementsLayout.createSequentialGroup()
+                .addGap(5, 5, 5)
+                .addGroup(panelCriteres_DecaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelCriteres_DecaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                        .addComponent(jDateChooser3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jDateChooser4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(panelCriteres_DecaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(chSource1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(chDestination1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(panelCriteres_DecaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(chCharge1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(panelCriteres_DecaissementsLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(chMonnaie1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(chRevenu1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -1062,7 +1283,7 @@ public class Panel extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(barreOutils, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 640, Short.MAX_VALUE)
+            .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 649, Short.MAX_VALUE)
             .addComponent(panelTotaux, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -1073,7 +1294,8 @@ public class Panel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btCriteres)))
                 .addContainerGap())
-            .addComponent(panelCriteres, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelCriteres_Encaissements, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelCriteres_Decaissements, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1084,9 +1306,11 @@ public class Panel extends javax.swing.JPanel {
                     .addComponent(chRecherche, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btCriteres))
                 .addGap(5, 5, 5)
-                .addComponent(panelCriteres, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(panelCriteres_Encaissements, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(5, 5, 5)
+                .addComponent(panelCriteres_Decaissements, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
                 .addGap(5, 5, 5)
                 .addComponent(panelTotaux, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1158,18 +1382,34 @@ public class Panel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToolBar barreOutils;
     private javax.swing.JToggleButton btCriteres;
-    private javax.swing.JComboBox<String> chClasse;
+    private javax.swing.JComboBox<String> chCharge;
+    private javax.swing.JComboBox<String> chCharge1;
+    private javax.swing.JComboBox<String> chDestination;
+    private javax.swing.JComboBox<String> chDestination1;
+    private javax.swing.JComboBox<String> chMonnaie;
+    private javax.swing.JComboBox<String> chMonnaie1;
     private UI.JS2bTextField chRecherche;
-    private javax.swing.JComboBox<String> chSexe;
-    private javax.swing.JComboBox<String> chStatus;
+    private javax.swing.JComboBox<String> chRevenu;
+    private javax.swing.JComboBox<String> chRevenu1;
+    private javax.swing.JComboBox<String> chSource;
+    private javax.swing.JComboBox<String> chSource1;
     private javax.swing.JComboBox<String> combototMonnaie;
     private javax.swing.JButton jButton5;
+    private com.toedter.calendar.JDateChooser jDateChooser1;
+    private com.toedter.calendar.JDateChooser jDateChooser2;
+    private com.toedter.calendar.JDateChooser jDateChooser3;
+    private com.toedter.calendar.JDateChooser jDateChooser4;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel labInfos;
     private javax.swing.JLabel labTauxDeChange;
     private javax.swing.JLabel labTotauxDecaissement;
     private javax.swing.JLabel labTotauxEncaissement;
     private javax.swing.JLabel labTotauxSolde;
-    private javax.swing.JPanel panelCriteres;
+    private javax.swing.JPanel panelCriteres_Decaissements;
+    private javax.swing.JPanel panelCriteres_Encaissements;
     private javax.swing.JPanel panelTotaux;
     private javax.swing.JScrollPane scrollListeDecaissement;
     private javax.swing.JScrollPane scrollListeEncaissement;

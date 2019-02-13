@@ -86,7 +86,7 @@ public class RenduTableDecaissement implements TableCellRenderer {
                 cellule = new CelluleSimpleTableau(" " + getNature(Integer.parseInt(value+"")) + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, iconeEdition);
                 break;
             case 6:
-                cellule = new CelluleSimpleTableau(" " + value + " ", CelluleSimpleTableau.ALIGNE_DROITE, iconeEdition);
+                cellule = new CelluleSimpleTableau(" " + value + " ", CelluleSimpleTableau.ALIGNE_GAUCHE, iconeEdition);
                 break;
             case 7:
                 cellule = new CelluleSimpleTableau(" " + Util.getMontantFrancais(Double.parseDouble(value+"")) + " ", CelluleSimpleTableau.ALIGNE_DROITE, iconeEdition);
