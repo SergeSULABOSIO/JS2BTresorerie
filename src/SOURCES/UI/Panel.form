@@ -54,7 +54,7 @@
               <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
               <Component id="panelCriteres_Decaissements" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
-              <Component id="tabPrincipal" pref="96" max="32767" attributes="0"/>
+              <Component id="tabPrincipal" pref="186" max="32767" attributes="0"/>
               <EmptySpace min="-2" pref="5" max="-2" attributes="0"/>
               <Component id="panelTotaux" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" max="-2" attributes="0"/>
