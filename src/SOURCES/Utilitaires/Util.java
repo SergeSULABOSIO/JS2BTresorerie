@@ -80,6 +80,33 @@ public class Util {
 
         return dateS;
     }
+    
+    public static boolean contientMotsCles(String base, String motscles){
+        boolean rep = false;
+        String[] tabMotsCles = motscles.split(" ");
+        for(int i=0; i<tabMotsCles.length; i++){
+            if(base.toLowerCase().contains(tabMotsCles[i].toLowerCase().trim())){
+                return true;
+            }
+        }
+        return rep;
+    }
+
+    public static Date getDate_ZeroHeure() {
+        Date date = new Date();
+        date.setHours(23);
+        date.setMinutes(59);
+        date.setSeconds(59);
+        return date;
+    }
+
+    public static Date getDate_CeMatin() {
+        Date date = new Date();
+        date.setHours(0);
+        date.setMinutes(0);
+        date.setSeconds(0);
+        return date;
+    }
 
     public static String getMontantFrancais(double montant) {
         String val = "";
@@ -95,11 +122,11 @@ public class Util {
             }
             index++;
         }
-        int ValApresVirgule = (int)(round(((montant - ValEntiere)*100), 0));
+        int ValApresVirgule = (int) (round(((montant - ValEntiere) * 100), 0));
         //System.out.println("Valeur d'origine = " + montant);
         //System.out.println("Partie entière = " + ValEntiere);
         //System.out.println("Partie décimale = " + ValApresVirgule);
-        return val+"," + ValApresVirgule;
+        return val + "," + ValApresVirgule;
     }
 
     public static void main(String[] args) {

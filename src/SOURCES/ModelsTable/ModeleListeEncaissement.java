@@ -7,6 +7,7 @@ package SOURCES.ModelsTable;
 
 import SOURCES.CallBack.EcouteurValeursChangees;
 import SOURCES.Interface.InterfaceEncaissement;
+import SOURCES.Utilitaires.Util;
 import java.util.Date;
 import java.util.Vector;
 import javax.swing.JOptionPane;
@@ -47,14 +48,57 @@ public class ModeleListeEncaissement extends AbstractTableModel {
     
     private void search_verifier_periode(InterfaceEncaissement Iencaissement, Date dateA, Date dateB, String motcle, int idMonnaie, int idDestination, int idRevenu) {
         if (Iencaissement != null) {
-            boolean apresA = Iencaissement.getDate().after(dateA);
-            boolean avantB = Iencaissement.getDate().before(dateB);
+            boolean apresA = (Iencaissement.getDate().after(dateA) || Iencaissement.getDate().equals(dateA));
+            boolean avantB = (Iencaissement.getDate().before(dateB) || Iencaissement.getDate().equals(dateB));
             if (apresA == true && avantB == true) {
                 //On ne fait rien
             } else {
                 search_blacklister(Iencaissement);
             }
-            //search_verifier_sexe(motcle, idclasse, sexe, Ieleve);
+            search_verifier_monnaie(Iencaissement, motcle, idMonnaie, idDestination, idRevenu);
+        }
+    }
+    
+    private void search_verifier_monnaie(InterfaceEncaissement Iencaissement, String motcle, int idMonnaie, int idDestination, int idRevenu) {
+        if (Iencaissement != null) {
+            if (idMonnaie == -1) {
+                //On ne fait rien
+            } else if(Iencaissement.getIdMonnaie() != idMonnaie){
+                search_blacklister(Iencaissement);
+            }
+            search_verifier_destination(Iencaissement, motcle, idDestination, idRevenu);
+        }
+    }
+    
+    private void search_verifier_destination(InterfaceEncaissement Iencaissement, String motcle, int idDestination, int idRevenu) {
+        if (Iencaissement != null) {
+            if (idDestination == -1) {
+                //On ne fait rien
+            } else if(Iencaissement.getDestination() != idDestination){
+                search_blacklister(Iencaissement);
+            }
+            search_verifier_revenu(Iencaissement, motcle, idRevenu);
+        }
+    }
+    
+    private void search_verifier_revenu(InterfaceEncaissement Iencaissement, String motcle, int idRevenu) {
+        if (Iencaissement != null) {
+            if (idRevenu == -1) {
+                //On ne fait rien
+            } else if(Iencaissement.getIdRevenu() != idRevenu){
+                search_blacklister(Iencaissement);
+            }
+            search_verifier_motcle(Iencaissement, motcle);
+        }
+    }
+    
+    private void search_verifier_motcle(InterfaceEncaissement Iencaissement, String motcle) {
+        if (Iencaissement != null) {
+            if (motcle.trim().length() == 0) {
+                //On ne fait rien
+            } else if(Util.contientMotsCles(Iencaissement.getEffectuePar(), motcle) == false && Util.contientMotsCles(Iencaissement.getMotif(), motcle) == false && Util.contientMotsCles(Iencaissement.getReference(), motcle) == false){
+                search_blacklister(Iencaissement);
+            }
         }
     }
     

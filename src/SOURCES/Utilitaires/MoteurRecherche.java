@@ -56,7 +56,7 @@ public abstract class MoteurRecherche {
         }
     }
 
-    private void demarrerRecherche() {
+    public void demarrerRecherche() {
         processus = new Thread() {
             @Override
             public void run() {

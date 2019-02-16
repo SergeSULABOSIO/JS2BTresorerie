@@ -42,6 +42,7 @@ import SOURCES.Utilitaires.XX_Decaissement;
 import SOURCES.Utilitaires.XX_Encaissement;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
+import java.util.Calendar;
 import java.util.Date;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -108,8 +109,8 @@ public class Panel extends javax.swing.JPanel {
 
     private void initComposantsMoteursRecherche() {
         //Composants pour Encaissements
-        chDateAEnc.setDate(new Date());
-        chDateBEnc.setDate(new Date());
+        chDateAEnc.setDate(Util.getDate_CeMatin());
+        chDateBEnc.setDate(Util.getDate_ZeroHeure());
 
         //Monnaie - Encaissement
         chMonnaieEnc.removeAllItems();
@@ -181,6 +182,46 @@ public class Panel extends javax.swing.JPanel {
         afficherCriterePlus();
     }
 
+    private int getIdMonnaie(String code) {
+        int id = -1;
+        for (InterfaceMonnaie Im : this.parametreTresorerie.getMonnaies()) {
+            if (Im.getCode().equals(code)) {
+                return Im.getId();
+            }
+        }
+        return id;
+    }
+    
+    private int getIdRevenu(String nom) {
+        int id = -1;
+        for (InterfaceRevenu Im : this.parametreTresorerie.getRevenus()) {
+            if (Im.getNom().equals(nom)) {
+                return Im.getId();
+            }
+        }
+        return id;
+    }
+    
+    private int getIdCharge(String nom) {
+        int id = -1;
+        for (InterfaceCharge Im : this.parametreTresorerie.getCharges()) {
+            if (Im.getNom().equals(nom)) {
+                return Im.getId();
+            }
+        }
+        return id;
+    }
+    
+    private int getDestination(String nom) {
+        if(nom.equals("BANQUE")){
+            return InterfaceEncaissement.DESTINATION_BANQUE;
+        }else if(nom.equals("CAISSE")){
+            return InterfaceEncaissement.DESTINATION_CAISSE;
+        }else{
+            return -1;
+        }
+    }
+
     private void activerMoteurRecherche() {
         /* */
         gestionnaireRecherche = new MoteurRecherche(icones, chRecherche, ecouteurClose) {
@@ -188,23 +229,23 @@ public class Panel extends javax.swing.JPanel {
             @Override
             public void chercher(String motcle) {
                 /* */
-                
+
                 if (indexTabSelected == 0) {
                     //On extrait les critère de filtrage des Encaissements
                     
-                    modeleListeEleve.chercher(motcle, idClasse, sexe, status);
-                    if (modeleListeAyantDroit != null) {
-                        modeleListeAyantDroit.chercher(modeleListeEleve.getListeData());
-                    }
+                    int idMonnaie = getIdMonnaie(chMonnaieEnc.getSelectedItem() + "");
+                    int idDest = getDestination(chDestinationEnc.getSelectedItem()+"");
+                    int idRevenu = getIdRevenu(chRevenuEnc.getSelectedItem()+"");
+
+                    modeleListeEncaissement.chercher(chDateAEnc.getDate(), chDateBEnc.getDate(), motcle, idMonnaie, idDest, idRevenu);
+                    actualiserTotalDecaissement();
+                    actualiserTotalEncaissement();
+                    actualiserTotaux("combototMonnaieItemStateChanged");
                 } else {
                     //On extrait les critère de filtrage des Décaissements
 
-                    modeleListeEleve.chercher(motcle, idClasse, sexe, status);
-                    if (modeleListeAyantDroit != null) {
-                        modeleListeAyantDroit.chercher(modeleListeEleve.getListeData());
-                    }
                 }
-                
+
             }
         };
 
@@ -1114,19 +1155,34 @@ public class Panel extends javax.swing.JPanel {
         );
 
         panelCriteres_Encaissements.setBackground(new java.awt.Color(204, 204, 204));
-        panelCriteres_Encaissements.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres Critères de filtrage - Encaissements", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 102, 102))); // NOI18N
+        panelCriteres_Encaissements.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres Critères de filtrage - Encaissements", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(102, 102, 102))); // NOI18N
 
         chMonnaieEnc.setBackground(new java.awt.Color(204, 204, 204));
         chMonnaieEnc.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chMonnaieEnc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MONNAIE" }));
+        chMonnaieEnc.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chMonnaieEncItemStateChanged(evt);
+            }
+        });
 
         chRevenuEnc.setBackground(new java.awt.Color(204, 204, 204));
         chRevenuEnc.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chRevenuEnc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "REVENU" }));
+        chRevenuEnc.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chRevenuEncItemStateChanged(evt);
+            }
+        });
 
         chDestinationEnc.setBackground(new java.awt.Color(204, 204, 204));
         chDestinationEnc.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chDestinationEnc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "DESTINATION" }));
+        chDestinationEnc.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chDestinationEncItemStateChanged(evt);
+            }
+        });
         chDestinationEnc.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 chDestinationEncActionPerformed(evt);
@@ -1176,19 +1232,34 @@ public class Panel extends javax.swing.JPanel {
         );
 
         panelCriteres_Decaissements.setBackground(new java.awt.Color(204, 204, 204));
-        panelCriteres_Decaissements.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres Critères de filtrage - Décaissements", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 11), new java.awt.Color(102, 102, 102))); // NOI18N
+        panelCriteres_Decaissements.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres Critères de filtrage - Décaissements", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(102, 102, 102))); // NOI18N
 
         chMonnaieDec.setBackground(new java.awt.Color(204, 204, 204));
         chMonnaieDec.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chMonnaieDec.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MONNAIE" }));
+        chMonnaieDec.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chMonnaieDecItemStateChanged(evt);
+            }
+        });
 
         chChargeDec.setBackground(new java.awt.Color(204, 204, 204));
         chChargeDec.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chChargeDec.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "CHARGE" }));
+        chChargeDec.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chChargeDecItemStateChanged(evt);
+            }
+        });
 
         chSourceDec.setBackground(new java.awt.Color(204, 204, 204));
         chSourceDec.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chSourceDec.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SOURCE" }));
+        chSourceDec.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                chSourceDecItemStateChanged(evt);
+            }
+        });
 
         chDateBDec.setBackground(new java.awt.Color(204, 204, 204));
         chDateBDec.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
@@ -1333,6 +1404,60 @@ public class Panel extends javax.swing.JPanel {
     private void chDestinationEncActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_chDestinationEncActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_chDestinationEncActionPerformed
+
+    private void chMonnaieEncItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chMonnaieEncItemStateChanged
+        // TODO add your handling code here:
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            if(gestionnaireRecherche != null){
+                gestionnaireRecherche.demarrerRecherche();
+            }
+        }
+    }//GEN-LAST:event_chMonnaieEncItemStateChanged
+
+    private void chDestinationEncItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chDestinationEncItemStateChanged
+        // TODO add your handling code here:
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            if(gestionnaireRecherche != null){
+                gestionnaireRecherche.demarrerRecherche();
+            }
+        }
+    }//GEN-LAST:event_chDestinationEncItemStateChanged
+
+    private void chRevenuEncItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chRevenuEncItemStateChanged
+        // TODO add your handling code here:
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            if(gestionnaireRecherche != null){
+                gestionnaireRecherche.demarrerRecherche();
+            }
+        }
+    }//GEN-LAST:event_chRevenuEncItemStateChanged
+
+    private void chMonnaieDecItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chMonnaieDecItemStateChanged
+        // TODO add your handling code here:
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            if(gestionnaireRecherche != null){
+                gestionnaireRecherche.demarrerRecherche();
+            }
+        }
+    }//GEN-LAST:event_chMonnaieDecItemStateChanged
+
+    private void chSourceDecItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chSourceDecItemStateChanged
+        // TODO add your handling code here:
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            if(gestionnaireRecherche != null){
+                gestionnaireRecherche.demarrerRecherche();
+            }
+        }
+    }//GEN-LAST:event_chSourceDecItemStateChanged
+
+    private void chChargeDecItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chChargeDecItemStateChanged
+        // TODO add your handling code here:
+        if (evt.getStateChange() == ItemEvent.SELECTED) {
+            if(gestionnaireRecherche != null){
+                gestionnaireRecherche.demarrerRecherche();
+            }
+        }
+    }//GEN-LAST:event_chChargeDecItemStateChanged
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
