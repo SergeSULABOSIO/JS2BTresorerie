@@ -40,8 +40,11 @@ import SOURCES.Utilitaires.SortiesTresorerie;
 import SOURCES.Utilitaires.Util;
 import SOURCES.Utilitaires.XX_Decaissement;
 import SOURCES.Utilitaires.XX_Encaissement;
+import com.toedter.calendar.JDateChooser;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Calendar;
 import java.util.Date;
 import javax.swing.ImageIcon;
@@ -107,14 +110,32 @@ public class Panel extends javax.swing.JPanel {
         activerMoteurRecherche();
     }
 
+    private void ecouterChangementDate(JDateChooser dateChooser) {
+        if (dateChooser != null) {
+            dateChooser.getDateEditor().addPropertyChangeListener(new PropertyChangeListener() {
+                @Override
+                public void propertyChange(PropertyChangeEvent evt) {
+                    if (evt.getPropertyName().equals("date")) {
+                        if (gestionnaireRecherche != null) {
+                            gestionnaireRecherche.demarrerRecherche();
+                        }
+                    }
+                }
+            });
+        }
+    }
+
     private void initComposantsMoteursRecherche() {
         //Composants pour Encaissements
         chDateAEnc.setDate(Util.getDate_CeMatin());
+        ecouterChangementDate(chDateAEnc);
+
         chDateBEnc.setDate(Util.getDate_ZeroHeure());
+        ecouterChangementDate(chDateBEnc);
 
         //Monnaie - Encaissement
         chMonnaieEnc.removeAllItems();
-        chMonnaieEnc.addItem("MONNAIES (*)");
+        chMonnaieEnc.addItem("MONNAIES(*)");
         for (InterfaceMonnaie iM : this.parametreTresorerie.getMonnaies()) {
             chMonnaieEnc.addItem(iM.getCode());
         }
@@ -133,8 +154,11 @@ public class Panel extends javax.swing.JPanel {
         }
 
         //Composants pour Décaissements
-        chDateADec.setDate(new Date());
-        chDateBDec.setDate(new Date());
+        chDateADec.setDate(Util.getDate_CeMatin());
+        ecouterChangementDate(chDateADec);
+
+        chDateBDec.setDate(Util.getDate_ZeroHeure());
+        ecouterChangementDate(chDateBDec);
 
         //Monnaie - Encaissement
         chMonnaieDec.removeAllItems();
@@ -191,7 +215,7 @@ public class Panel extends javax.swing.JPanel {
         }
         return id;
     }
-    
+
     private int getIdRevenu(String nom) {
         int id = -1;
         for (InterfaceRevenu Im : this.parametreTresorerie.getRevenus()) {
@@ -201,7 +225,7 @@ public class Panel extends javax.swing.JPanel {
         }
         return id;
     }
-    
+
     private int getIdCharge(String nom) {
         int id = -1;
         for (InterfaceCharge Im : this.parametreTresorerie.getCharges()) {
@@ -211,13 +235,13 @@ public class Panel extends javax.swing.JPanel {
         }
         return id;
     }
-    
+
     private int getDestination(String nom) {
-        if(nom.equals("BANQUE")){
+        if (nom.equals("BANQUE")) {
             return InterfaceEncaissement.DESTINATION_BANQUE;
-        }else if(nom.equals("CAISSE")){
+        } else if (nom.equals("CAISSE")) {
             return InterfaceEncaissement.DESTINATION_CAISSE;
-        }else{
+        } else {
             return -1;
         }
     }
@@ -232,10 +256,10 @@ public class Panel extends javax.swing.JPanel {
 
                 if (indexTabSelected == 0) {
                     //On extrait les critère de filtrage des Encaissements
-                    
+
                     int idMonnaie = getIdMonnaie(chMonnaieEnc.getSelectedItem() + "");
-                    int idDest = getDestination(chDestinationEnc.getSelectedItem()+"");
-                    int idRevenu = getIdRevenu(chRevenuEnc.getSelectedItem()+"");
+                    int idDest = getDestination(chDestinationEnc.getSelectedItem() + "");
+                    int idRevenu = getIdRevenu(chRevenuEnc.getSelectedItem() + "");
 
                     modeleListeEncaissement.chercher(chDateAEnc.getDate(), chDateBEnc.getDate(), motcle, idMonnaie, idDest, idRevenu);
                     actualiserTotalDecaissement();
@@ -1408,7 +1432,7 @@ public class Panel extends javax.swing.JPanel {
     private void chMonnaieEncItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chMonnaieEncItemStateChanged
         // TODO add your handling code here:
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            if(gestionnaireRecherche != null){
+            if (gestionnaireRecherche != null) {
                 gestionnaireRecherche.demarrerRecherche();
             }
         }
@@ -1417,7 +1441,7 @@ public class Panel extends javax.swing.JPanel {
     private void chDestinationEncItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chDestinationEncItemStateChanged
         // TODO add your handling code here:
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            if(gestionnaireRecherche != null){
+            if (gestionnaireRecherche != null) {
                 gestionnaireRecherche.demarrerRecherche();
             }
         }
@@ -1426,7 +1450,7 @@ public class Panel extends javax.swing.JPanel {
     private void chRevenuEncItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chRevenuEncItemStateChanged
         // TODO add your handling code here:
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            if(gestionnaireRecherche != null){
+            if (gestionnaireRecherche != null) {
                 gestionnaireRecherche.demarrerRecherche();
             }
         }
@@ -1435,7 +1459,7 @@ public class Panel extends javax.swing.JPanel {
     private void chMonnaieDecItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chMonnaieDecItemStateChanged
         // TODO add your handling code here:
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            if(gestionnaireRecherche != null){
+            if (gestionnaireRecherche != null) {
                 gestionnaireRecherche.demarrerRecherche();
             }
         }
@@ -1444,7 +1468,7 @@ public class Panel extends javax.swing.JPanel {
     private void chSourceDecItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chSourceDecItemStateChanged
         // TODO add your handling code here:
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            if(gestionnaireRecherche != null){
+            if (gestionnaireRecherche != null) {
                 gestionnaireRecherche.demarrerRecherche();
             }
         }
@@ -1453,7 +1477,7 @@ public class Panel extends javax.swing.JPanel {
     private void chChargeDecItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_chChargeDecItemStateChanged
         // TODO add your handling code here:
         if (evt.getStateChange() == ItemEvent.SELECTED) {
-            if(gestionnaireRecherche != null){
+            if (gestionnaireRecherche != null) {
                 gestionnaireRecherche.demarrerRecherche();
             }
         }
