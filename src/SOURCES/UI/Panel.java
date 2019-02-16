@@ -205,10 +205,6 @@ public class Panel extends javax.swing.JPanel {
                     }
                 }
                 
-                
-                
-                
-                
             }
         };
 

@@ -21,6 +21,7 @@ public class ModeleListeEncaissement extends AbstractTableModel {
 
     private String[] titreColonnes = {"N°", "Date", "Destination", "Reference", "Motif", "Nature", "Effectué par", "Montant", "Monnaie"};
     private Vector<InterfaceEncaissement> listeData = new Vector<>();
+    private Vector<InterfaceEncaissement> listeDataExclus = new Vector<>();
     private JScrollPane parent;
     private EcouteurValeursChangees ecouteurModele;
 
@@ -28,6 +29,51 @@ public class ModeleListeEncaissement extends AbstractTableModel {
         this.parent = parent;
         this.ecouteurModele = ecouteurModele;
     }
+    
+    
+    /**/
+    
+    public void chercher(Date dateA, Date dateB, String motcle, int idMonnaie, int idDestination, int idRevenu) {
+        this.listeData.addAll(this.listeDataExclus);
+        this.listeDataExclus.removeAllElements();
+        for (InterfaceEncaissement Iencaissement : this.listeData) {
+            if (Iencaissement != null) {
+                search_verifier_periode(Iencaissement, dateA, dateB, motcle, idMonnaie, idDestination, idRevenu);
+            }
+        }
+        //En fin, on va nettoyer la liste - en enlevant tout objet qui a été black listé
+        search_nettoyer();
+    }
+    
+    private void search_verifier_periode(InterfaceEncaissement Iencaissement, Date dateA, Date dateB, String motcle, int idMonnaie, int idDestination, int idRevenu) {
+        if (Iencaissement != null) {
+            boolean apresA = Iencaissement.getDate().after(dateA);
+            boolean avantB = Iencaissement.getDate().before(dateB);
+            if (apresA == true && avantB == true) {
+                //On ne fait rien
+            } else {
+                search_blacklister(Iencaissement);
+            }
+            //search_verifier_sexe(motcle, idclasse, sexe, Ieleve);
+        }
+    }
+    
+    private void search_blacklister(InterfaceEncaissement Iencaissement) {
+        if (Iencaissement != null && this.listeDataExclus != null) {
+            if (!listeDataExclus.contains(Iencaissement)) {
+                this.listeDataExclus.add(Iencaissement);
+            }
+        }
+    }
+    
+    private void search_nettoyer() {
+        if (this.listeDataExclus != null && this.listeData != null) {
+            this.listeDataExclus.forEach((IeleveASupp) -> {
+                this.listeData.removeElement(IeleveASupp);
+            });
+            redessinerTable();
+        }
+    } 
     
     public void setListeEncaissements(Vector<InterfaceEncaissement> listeData) {
         this.listeData = listeData;
