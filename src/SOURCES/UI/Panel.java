@@ -185,19 +185,12 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private void afficherCriterePlus() {
-        if (btCriteres.isSelected() == true) {
-            btCriteres.setText("Critères [-]");
-            if (indexTabSelected == 0) {
-                panelCriteres_Encaissements.setVisible(true);
-                panelCriteres_Decaissements.setVisible(false);
-            } else {
-                panelCriteres_Encaissements.setVisible(false);
-                panelCriteres_Decaissements.setVisible(true);
-            }
+        if (indexTabSelected == 0) {
+            panelCriteres_Encaissements.setVisible(true);
+            panelCriteres_Decaissements.setVisible(false);
         } else {
             panelCriteres_Encaissements.setVisible(false);
-            panelCriteres_Decaissements.setVisible(false);
-            btCriteres.setText("Critères [+]");
+            panelCriteres_Decaissements.setVisible(true);
         }
     }
 
@@ -253,23 +246,25 @@ public class Panel extends javax.swing.JPanel {
             @Override
             public void chercher(String motcle) {
                 /* */
-
                 if (indexTabSelected == 0) {
                     //On extrait les critère de filtrage des Encaissements
-
                     int idMonnaie = getIdMonnaie(chMonnaieEnc.getSelectedItem() + "");
                     int idDest = getDestination(chDestinationEnc.getSelectedItem() + "");
                     int idRevenu = getIdRevenu(chRevenuEnc.getSelectedItem() + "");
-
                     modeleListeEncaissement.chercher(chDateAEnc.getDate(), chDateBEnc.getDate(), motcle, idMonnaie, idDest, idRevenu);
                     actualiserTotalDecaissement();
                     actualiserTotalEncaissement();
-                    actualiserTotaux("combototMonnaieItemStateChanged");
+                    actualiserTotaux("activerMoteurRecherche");
                 } else {
                     //On extrait les critère de filtrage des Décaissements
-
+                    int idMonnaie = getIdMonnaie(chMonnaieDec.getSelectedItem() + "");
+                    int idSource = getDestination(chSourceDec.getSelectedItem() + "");
+                    int idCharge = getIdCharge(chChargeDec.getSelectedItem() + "");
+                    modeleListeDecaissement.chercher(chDateADec.getDate(), chDateBDec.getDate(), motcle, idMonnaie, idSource, idCharge);
+                    actualiserTotalDecaissement();
+                    actualiserTotalEncaissement();
+                    actualiserTotaux("activerMoteurRecherche");
                 }
-
             }
         };
 
@@ -773,7 +768,6 @@ public class Panel extends javax.swing.JPanel {
         this.labTotauxEncaissement.setIcon(icones.getNombre_01());
         this.labTotauxDecaissement.setIcon(icones.getNombre_01());
         this.labTotauxSolde.setIcon(icones.getNombre_01());
-        this.btCriteres.setIcon(icones.getParamètres_01());
     }
 
     private void setMenuContextuel() {
@@ -994,7 +988,6 @@ public class Panel extends javax.swing.JPanel {
         tableListeDecaissement = new javax.swing.JTable();
         labInfos = new javax.swing.JLabel();
         chRecherche = new UI.JS2bTextField();
-        btCriteres = new javax.swing.JToggleButton();
         panelTotaux = new javax.swing.JPanel();
         combototMonnaie = new javax.swing.JComboBox<>();
         labTotauxEncaissement = new javax.swing.JLabel();
@@ -1110,16 +1103,9 @@ public class Panel extends javax.swing.JPanel {
         labInfos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
         labInfos.setText("Prêt.");
 
+        chRecherche.setFont(new java.awt.Font("Cambria", 1, 14)); // NOI18N
         chRecherche.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
         chRecherche.setTextInitial("Recherche");
-
-        btCriteres.setIcon(new javax.swing.ImageIcon(getClass().getResource("/IMG/Facture01.png"))); // NOI18N
-        btCriteres.setText("Critères++");
-        btCriteres.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btCriteresActionPerformed(evt);
-            }
-        });
 
         panelTotaux.setBackground(new java.awt.Color(255, 255, 255));
         panelTotaux.setBorder(javax.swing.BorderFactory.createTitledBorder("Total"));
@@ -1178,11 +1164,8 @@ public class Panel extends javax.swing.JPanel {
                 .addGap(0, 5, Short.MAX_VALUE))
         );
 
-        panelCriteres_Encaissements.setBackground(new java.awt.Color(204, 204, 204));
         panelCriteres_Encaissements.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres Critères de filtrage - Encaissements", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(102, 102, 102))); // NOI18N
 
-        chMonnaieEnc.setBackground(new java.awt.Color(204, 204, 204));
-        chMonnaieEnc.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chMonnaieEnc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MONNAIE" }));
         chMonnaieEnc.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -1190,8 +1173,6 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
-        chRevenuEnc.setBackground(new java.awt.Color(204, 204, 204));
-        chRevenuEnc.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chRevenuEnc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "REVENU" }));
         chRevenuEnc.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -1199,8 +1180,6 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
-        chDestinationEnc.setBackground(new java.awt.Color(204, 204, 204));
-        chDestinationEnc.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chDestinationEnc.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "DESTINATION" }));
         chDestinationEnc.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -1213,12 +1192,10 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
-        chDateBEnc.setBackground(new java.awt.Color(204, 204, 204));
         chDateBEnc.setDateFormatString("dd MMM yyyy");
         chDateBEnc.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chDateBEnc.setMinimumSize(new java.awt.Dimension(95, 20));
 
-        chDateAEnc.setBackground(new java.awt.Color(204, 204, 204));
         chDateAEnc.setDateFormatString("dd MMM yyyy");
         chDateAEnc.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chDateAEnc.setMinimumSize(new java.awt.Dimension(95, 20));
@@ -1233,11 +1210,11 @@ public class Panel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(chDateBEnc, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chMonnaieEnc, 0, 110, Short.MAX_VALUE)
+                .addComponent(chMonnaieEnc, 0, 114, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chDestinationEnc, 0, 131, Short.MAX_VALUE)
+                .addComponent(chDestinationEnc, 0, 135, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(chRevenuEnc, 0, 101, Short.MAX_VALUE)
+                .addComponent(chRevenuEnc, 0, 107, Short.MAX_VALUE)
                 .addContainerGap())
         );
         panelCriteres_EncaissementsLayout.setVerticalGroup(
@@ -1255,11 +1232,8 @@ public class Panel extends javax.swing.JPanel {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        panelCriteres_Decaissements.setBackground(new java.awt.Color(204, 204, 204));
         panelCriteres_Decaissements.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Autres Critères de filtrage - Décaissements", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Tahoma", 0, 13), new java.awt.Color(102, 102, 102))); // NOI18N
 
-        chMonnaieDec.setBackground(new java.awt.Color(204, 204, 204));
-        chMonnaieDec.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chMonnaieDec.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "MONNAIE" }));
         chMonnaieDec.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -1267,8 +1241,6 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
-        chChargeDec.setBackground(new java.awt.Color(204, 204, 204));
-        chChargeDec.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chChargeDec.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "CHARGE" }));
         chChargeDec.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -1276,8 +1248,6 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
-        chSourceDec.setBackground(new java.awt.Color(204, 204, 204));
-        chSourceDec.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chSourceDec.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "SOURCE" }));
         chSourceDec.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
@@ -1285,11 +1255,9 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
-        chDateBDec.setBackground(new java.awt.Color(204, 204, 204));
         chDateBDec.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chDateBDec.setMinimumSize(new java.awt.Dimension(95, 20));
 
-        chDateADec.setBackground(new java.awt.Color(204, 204, 204));
         chDateADec.setFont(new java.awt.Font("Tahoma", 0, 10)); // NOI18N
         chDateADec.setMinimumSize(new java.awt.Dimension(95, 20));
 
@@ -1336,10 +1304,7 @@ public class Panel extends javax.swing.JPanel {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(labInfos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(chRecherche, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btCriteres)))
+                    .addComponent(chRecherche, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
             .addComponent(panelCriteres_Encaissements, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addComponent(panelCriteres_Decaissements, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -1349,15 +1314,13 @@ public class Panel extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addComponent(barreOutils, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(chRecherche, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btCriteres))
-                .addGap(0, 0, 0)
+                .addComponent(chRecherche, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(2, 2, 2)
                 .addComponent(panelCriteres_Encaissements, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
                 .addComponent(panelCriteres_Decaissements, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(5, 5, 5)
-                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 139, Short.MAX_VALUE)
+                .addComponent(tabPrincipal, javax.swing.GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
                 .addGap(5, 5, 5)
                 .addComponent(panelTotaux, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -1390,11 +1353,6 @@ public class Panel extends javax.swing.JPanel {
         // TODO add your handling code here:
         activerBoutons(((JTabbedPane) evt.getSource()).getSelectedIndex());
     }//GEN-LAST:event_tabPrincipalStateChanged
-
-    private void btCriteresActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btCriteresActionPerformed
-        // TODO add your handling code here:
-        activerCriteres();
-    }//GEN-LAST:event_btCriteresActionPerformed
 
     private void tableListeEncaissementKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableListeEncaissementKeyReleased
         // TODO add your handling code here:
@@ -1486,7 +1444,6 @@ public class Panel extends javax.swing.JPanel {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JToolBar barreOutils;
-    private javax.swing.JToggleButton btCriteres;
     private javax.swing.JComboBox<String> chChargeDec;
     private com.toedter.calendar.JDateChooser chDateADec;
     private com.toedter.calendar.JDateChooser chDateAEnc;

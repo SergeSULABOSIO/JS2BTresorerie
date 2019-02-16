@@ -32,8 +32,6 @@ public class ModeleListeEncaissement extends AbstractTableModel {
     }
     
     
-    /**/
-    
     public void chercher(Date dateA, Date dateB, String motcle, int idMonnaie, int idDestination, int idRevenu) {
         this.listeData.addAll(this.listeDataExclus);
         this.listeDataExclus.removeAllElements();

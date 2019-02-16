@@ -7,6 +7,7 @@ package SOURCES.ModelsTable;
 
 import SOURCES.CallBack.EcouteurValeursChangees;
 import SOURCES.Interface.InterfaceDecaissement;
+import SOURCES.Utilitaires.Util;
 import java.util.Date;
 import java.util.Vector;
 import javax.swing.JOptionPane;
@@ -21,6 +22,7 @@ public class ModeleListeDecaissement extends AbstractTableModel {
 
     private String[] titreColonnes = {"N°", "Date", "Source", "Reference", "Motif", "Nature", "Bénéficiaire", "Montant", "Monnaie"};
     private Vector<InterfaceDecaissement> listeData = new Vector<>();
+    private Vector<InterfaceDecaissement> listeDataExclus = new Vector<>();
     private JScrollPane parent;
     private EcouteurValeursChangees ecouteurModele;
 
@@ -47,6 +49,91 @@ public class ModeleListeDecaissement extends AbstractTableModel {
         }
     }
 
+    public void chercher(Date dateA, Date dateB, String motcle, int idMonnaie, int idSource, int idCharge) {
+        this.listeData.addAll(this.listeDataExclus);
+        this.listeDataExclus.removeAllElements();
+        for (InterfaceDecaissement Idecaissement : this.listeData) {
+            if (Idecaissement != null) {
+                search_verifier_periode(Idecaissement, dateA, dateB, motcle, idMonnaie, idSource, idCharge);
+            }
+        }
+        //En fin, on va nettoyer la liste - en enlevant tout objet qui a été black listé
+        search_nettoyer();
+    }
+    
+    private void search_verifier_periode(InterfaceDecaissement Idecaissement, Date dateA, Date dateB, String motcle, int idMonnaie, int idSource, int idCharge) {
+        if (Idecaissement != null) {
+            boolean apresA = (Idecaissement.getDate().after(dateA) || Idecaissement.getDate().equals(dateA));
+            boolean avantB = (Idecaissement.getDate().before(dateB) || Idecaissement.getDate().equals(dateB));
+            if (apresA == true && avantB == true) {
+                //On ne fait rien
+            } else {
+                search_blacklister(Idecaissement);
+            }
+            search_verifier_monnaie(Idecaissement, motcle, idMonnaie, idSource, idCharge);
+        }
+    }
+    
+    private void search_verifier_monnaie(InterfaceDecaissement Idecaissement, String motcle, int idMonnaie, int idSource, int idCharge) {
+        if (Idecaissement != null) {
+            if (idMonnaie == -1) {
+                //On ne fait rien
+            } else if(Idecaissement.getIdMonnaie() != idMonnaie){
+                search_blacklister(Idecaissement);
+            }
+            search_verifier_source(Idecaissement, motcle, idSource, idCharge);
+        }
+    }
+    
+    private void search_verifier_source(InterfaceDecaissement Idecaissement, String motcle, int idSource, int idCharge) {
+        if (Idecaissement != null) {
+            if (idSource == -1) {
+                //On ne fait rien
+            } else if(Idecaissement.getSource()!= idSource){
+                search_blacklister(Idecaissement);
+            }
+            search_verifier_charge(Idecaissement, motcle, idCharge);
+        }
+    }
+    
+    private void search_verifier_charge(InterfaceDecaissement Idecaissement, String motcle, int idCharge) {
+        if (Idecaissement != null) {
+            if (idCharge == -1) {
+                //On ne fait rien
+            } else if(Idecaissement.getIdCharge() != idCharge){
+                search_blacklister(Idecaissement);
+            }
+            search_verifier_motcle(Idecaissement, motcle);
+        }
+    }  
+    
+    private void search_verifier_motcle(InterfaceDecaissement Idecaissement, String motcle) {
+        if (Idecaissement != null) {
+            if (motcle.trim().length() == 0) {
+                //On ne fait rien
+            } else if(Util.contientMotsCles(Idecaissement.getBeneficiaire(), motcle) == false && Util.contientMotsCles(Idecaissement.getMotif(), motcle) == false && Util.contientMotsCles(Idecaissement.getReference(), motcle) == false){
+                search_blacklister(Idecaissement);
+            }
+        }
+    }
+    
+    private void search_blacklister(InterfaceDecaissement Idecaissement) {
+        if (Idecaissement != null && this.listeDataExclus != null) {
+            if (!listeDataExclus.contains(Idecaissement)) {
+                this.listeDataExclus.add(Idecaissement);
+            }
+        }
+    }
+
+    private void search_nettoyer() {
+        if (this.listeDataExclus != null && this.listeData != null) {
+            this.listeDataExclus.forEach((IeleveASupp) -> {
+                this.listeData.removeElement(IeleveASupp);
+            });
+            redessinerTable();
+        }
+    }
+
     public InterfaceDecaissement getDecaissement_id(int id) {
         if (id != -1) {
             for (InterfaceDecaissement art : listeData) {
@@ -57,7 +144,7 @@ public class ModeleListeDecaissement extends AbstractTableModel {
         }
         return null;
     }
-    
+
     public Vector<InterfaceDecaissement> getListeData() {
         return this.listeData;
     }
@@ -172,9 +259,9 @@ public class ModeleListeDecaissement extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if(columnIndex == 0){
+        if (columnIndex == 0) {
             return false;
-        }else{
+        } else {
             return true;
         }
     }
@@ -186,7 +273,7 @@ public class ModeleListeDecaissement extends AbstractTableModel {
         String avant = Idecaisse.toString();
         switch (columnIndex) {
             case 1:
-                Idecaisse.setDate((Date)aValue);
+                Idecaisse.setDate((Date) aValue);
                 break;
             case 2:
                 Idecaisse.setSource(Integer.parseInt(aValue + ""));
@@ -213,8 +300,8 @@ public class ModeleListeDecaissement extends AbstractTableModel {
                 break;
         }
         String apres = Idecaisse.toString();
-        if(!avant.equals(apres)){
-            if(Idecaisse.getBeta() == InterfaceDecaissement.BETA_EXISTANT){
+        if (!avant.equals(apres)) {
+            if (Idecaisse.getBeta() == InterfaceDecaissement.BETA_EXISTANT) {
                 Idecaisse.setBeta(InterfaceDecaissement.BETA_MODIFIE);
             }
         }
