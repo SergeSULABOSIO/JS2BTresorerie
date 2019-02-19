@@ -304,10 +304,12 @@ public class Panel extends javax.swing.JPanel {
     }
 
     public String getTitreDoc() {
-        if (indexTabSelected == 0) {
+        if (typeExport == 0) {
             return "ENCAISSEMENTS";
-        } else {
+        } else if(typeExport == 1){
             return "DECAISSEMENTS";
+        }else{
+            return "TRESORERIE";
         }
     }
 
