@@ -485,9 +485,9 @@ public class DocumentPDF extends PdfPageEventHelper {
         try {
             Paragraph paragraphe = new Paragraph();
             PdfPTable tableSynthese = getTableau(
-                    120f,
+                    160f,
                     new String[]{"Synthèse", ""},
-                    new int[]{150, 120},
+                    new int[]{100, 150},
                     Element.ALIGN_RIGHT,
                     0
             );
@@ -508,7 +508,7 @@ public class DocumentPDF extends PdfPageEventHelper {
     
     private void setLignesTabSynthese(PdfPTable tableau, float borderwidth, String monnaie, double totalEncaissement, double totalDecaissement) {
         //Total Encaissement
-        tableau.addCell(getCelluleTableau("Encaissement:", borderwidth, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
+        tableau.addCell(getCelluleTableau("Encaissements:", borderwidth, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
         tableau.addCell(getCelluleTableau(Util.getMontantFrancais(totalEncaissement) + " " + monnaie, borderwidth, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));  
         //Total Decaissement
         tableau.addCell(getCelluleTableau("Décaissements:", borderwidth, BaseColor.WHITE, null, Element.ALIGN_RIGHT, Font_TexteSimple));
