@@ -5,9 +5,12 @@
  */
 package SOURCES.ModelsTable;
 
+import BEAN_BARRE_OUTILS.Bouton;
+import BEAN_MenuContextuel.RubriqueSimple;
 import SOURCES.CallBack.EcouteurValeursChangees;
 import SOURCES.Interface.InterfaceDecaissement;
 import SOURCES.Utilitaires.Util;
+import java.awt.Color;
 import java.util.Date;
 import java.util.Vector;
 import javax.swing.JOptionPane;
@@ -25,10 +28,14 @@ public class ModeleListeDecaissement extends AbstractTableModel {
     private Vector<InterfaceDecaissement> listeDataExclus = new Vector<>();
     private JScrollPane parent;
     private EcouteurValeursChangees ecouteurModele;
+    private Bouton btEnreg;
+    private RubriqueSimple mEnreg;
 
-    public ModeleListeDecaissement(JScrollPane parent, EcouteurValeursChangees ecouteurModele) {
+    public ModeleListeDecaissement(JScrollPane parent, Bouton btEnreg, RubriqueSimple mEnreg, EcouteurValeursChangees ecouteurModele) {
         this.parent = parent;
         this.ecouteurModele = ecouteurModele;
+        this.mEnreg = mEnreg;
+        this.btEnreg = btEnreg;
     }
 
     public void setListeDecaissements(Vector<InterfaceDecaissement> listeData) {
@@ -156,6 +163,8 @@ public class ModeleListeDecaissement extends AbstractTableModel {
 
     public void AjouterDecaissement(InterfaceDecaissement newDecaissement) {
         this.listeData.add(0, newDecaissement);
+        mEnreg.setCouleur(Color.blue);
+        btEnreg.setCouleur(Color.blue);
         redessinerTable();
     }
 
@@ -303,6 +312,8 @@ public class ModeleListeDecaissement extends AbstractTableModel {
         if (!avant.equals(apres)) {
             if (Idecaisse.getBeta() == InterfaceDecaissement.BETA_EXISTANT) {
                 Idecaisse.setBeta(InterfaceDecaissement.BETA_MODIFIE);
+                mEnreg.setCouleur(Color.blue);
+                btEnreg.setCouleur(Color.blue);
             }
         }
         listeData.set(rowIndex, Idecaisse);

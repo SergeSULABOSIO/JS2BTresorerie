@@ -5,9 +5,12 @@
  */
 package SOURCES.ModelsTable;
 
+import BEAN_BARRE_OUTILS.Bouton;
+import BEAN_MenuContextuel.RubriqueSimple;
 import SOURCES.CallBack.EcouteurValeursChangees;
 import SOURCES.Interface.InterfaceEncaissement;
 import SOURCES.Utilitaires.Util;
+import java.awt.Color;
 import java.util.Date;
 import java.util.Vector;
 import javax.swing.JOptionPane;
@@ -25,13 +28,16 @@ public class ModeleListeEncaissement extends AbstractTableModel {
     private Vector<InterfaceEncaissement> listeDataExclus = new Vector<>();
     private JScrollPane parent;
     private EcouteurValeursChangees ecouteurModele;
+    private Bouton btEnreg;
+    private RubriqueSimple mEnreg;
 
-    public ModeleListeEncaissement(JScrollPane parent, EcouteurValeursChangees ecouteurModele) {
+    public ModeleListeEncaissement(JScrollPane parent, Bouton btEnreg, RubriqueSimple mEnreg, EcouteurValeursChangees ecouteurModele) {
         this.parent = parent;
         this.ecouteurModele = ecouteurModele;
+        this.mEnreg = mEnreg;
+        this.btEnreg = btEnreg;
     }
-    
-    
+
     public void chercher(Date dateA, Date dateB, String motcle, int idMonnaie, int idDestination, int idRevenu) {
         this.listeData.addAll(this.listeDataExclus);
         this.listeDataExclus.removeAllElements();
@@ -43,7 +49,7 @@ public class ModeleListeEncaissement extends AbstractTableModel {
         //En fin, on va nettoyer la liste - en enlevant tout objet qui a été black listé
         search_nettoyer();
     }
-    
+
     private void search_verifier_periode(InterfaceEncaissement Iencaissement, Date dateA, Date dateB, String motcle, int idMonnaie, int idDestination, int idRevenu) {
         if (Iencaissement != null) {
             boolean apresA = (Iencaissement.getDate().after(dateA) || Iencaissement.getDate().equals(dateA));
@@ -56,50 +62,50 @@ public class ModeleListeEncaissement extends AbstractTableModel {
             search_verifier_monnaie(Iencaissement, motcle, idMonnaie, idDestination, idRevenu);
         }
     }
-    
+
     private void search_verifier_monnaie(InterfaceEncaissement Iencaissement, String motcle, int idMonnaie, int idDestination, int idRevenu) {
         if (Iencaissement != null) {
             if (idMonnaie == -1) {
                 //On ne fait rien
-            } else if(Iencaissement.getIdMonnaie() != idMonnaie){
+            } else if (Iencaissement.getIdMonnaie() != idMonnaie) {
                 search_blacklister(Iencaissement);
             }
             search_verifier_destination(Iencaissement, motcle, idDestination, idRevenu);
         }
     }
-    
+
     private void search_verifier_destination(InterfaceEncaissement Iencaissement, String motcle, int idDestination, int idRevenu) {
         if (Iencaissement != null) {
             if (idDestination == -1) {
                 //On ne fait rien
-            } else if(Iencaissement.getDestination() != idDestination){
+            } else if (Iencaissement.getDestination() != idDestination) {
                 search_blacklister(Iencaissement);
             }
             search_verifier_revenu(Iencaissement, motcle, idRevenu);
         }
     }
-    
+
     private void search_verifier_revenu(InterfaceEncaissement Iencaissement, String motcle, int idRevenu) {
         if (Iencaissement != null) {
             if (idRevenu == -1) {
                 //On ne fait rien
-            } else if(Iencaissement.getIdRevenu() != idRevenu){
+            } else if (Iencaissement.getIdRevenu() != idRevenu) {
                 search_blacklister(Iencaissement);
             }
             search_verifier_motcle(Iencaissement, motcle);
         }
     }
-    
+
     private void search_verifier_motcle(InterfaceEncaissement Iencaissement, String motcle) {
         if (Iencaissement != null) {
             if (motcle.trim().length() == 0) {
                 //On ne fait rien
-            } else if(Util.contientMotsCles(Iencaissement.getEffectuePar(), motcle) == false && Util.contientMotsCles(Iencaissement.getMotif(), motcle) == false && Util.contientMotsCles(Iencaissement.getReference(), motcle) == false){
+            } else if (Util.contientMotsCles(Iencaissement.getEffectuePar(), motcle) == false && Util.contientMotsCles(Iencaissement.getMotif(), motcle) == false && Util.contientMotsCles(Iencaissement.getReference(), motcle) == false) {
                 search_blacklister(Iencaissement);
             }
         }
     }
-    
+
     private void search_blacklister(InterfaceEncaissement Iencaissement) {
         if (Iencaissement != null && this.listeDataExclus != null) {
             if (!listeDataExclus.contains(Iencaissement)) {
@@ -107,7 +113,7 @@ public class ModeleListeEncaissement extends AbstractTableModel {
             }
         }
     }
-    
+
     private void search_nettoyer() {
         if (this.listeDataExclus != null && this.listeData != null) {
             this.listeDataExclus.forEach((IeleveASupp) -> {
@@ -115,8 +121,8 @@ public class ModeleListeEncaissement extends AbstractTableModel {
             });
             redessinerTable();
         }
-    } 
-    
+    }
+
     public void setListeEncaissements(Vector<InterfaceEncaissement> listeData) {
         this.listeData = listeData;
         redessinerTable();
@@ -145,7 +151,7 @@ public class ModeleListeEncaissement extends AbstractTableModel {
         }
         return null;
     }
-    
+
     public Vector<InterfaceEncaissement> getListeData() {
         return this.listeData;
     }
@@ -157,6 +163,8 @@ public class ModeleListeEncaissement extends AbstractTableModel {
 
     public void AjouterEncaissement(InterfaceEncaissement newEncaissement) {
         this.listeData.add(0, newEncaissement);
+        mEnreg.setCouleur(Color.blue);
+        btEnreg.setCouleur(Color.blue);
         redessinerTable();
     }
 
@@ -260,9 +268,9 @@ public class ModeleListeEncaissement extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if(columnIndex == 0){
+        if (columnIndex == 0) {
             return false;
-        }else{
+        } else {
             return true;
         }
     }
@@ -274,7 +282,7 @@ public class ModeleListeEncaissement extends AbstractTableModel {
         String avant = Iencaisse.toString();
         switch (columnIndex) {
             case 1:
-                Iencaisse.setDate((Date)aValue);
+                Iencaisse.setDate((Date) aValue);
                 break;
             case 2:
                 Iencaisse.setDestination(Integer.parseInt(aValue + ""));
@@ -301,9 +309,11 @@ public class ModeleListeEncaissement extends AbstractTableModel {
                 break;
         }
         String apres = Iencaisse.toString();
-        if(!avant.equals(apres)){
-            if(Iencaisse.getBeta() == InterfaceEncaissement.BETA_EXISTANT){
+        if (!avant.equals(apres)) {
+            if (Iencaisse.getBeta() == InterfaceEncaissement.BETA_EXISTANT) {
                 Iencaisse.setBeta(InterfaceEncaissement.BETA_MODIFIE);
+                mEnreg.setCouleur(Color.blue);
+                btEnreg.setCouleur(Color.blue);
             }
         }
         listeData.set(rowIndex, Iencaisse);

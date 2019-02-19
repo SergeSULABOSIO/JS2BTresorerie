@@ -24,6 +24,7 @@ import SOURCES.EditeursTable.EditeurDestination;
 import SOURCES.EditeursTable.EditeurMonnaie;
 import SOURCES.EditeursTable.EditeurRevenu;
 import SOURCES.EditeursTable.EditeurSource;
+import SOURCES.GenerateurPDF.DocumentPDF;
 import SOURCES.Interface.InterfaceCharge;
 import SOURCES.Interface.InterfaceDecaissement;
 import SOURCES.Interface.InterfaceEncaissement;
@@ -41,11 +42,11 @@ import SOURCES.Utilitaires.Util;
 import SOURCES.Utilitaires.XX_Decaissement;
 import SOURCES.Utilitaires.XX_Encaissement;
 import com.toedter.calendar.JDateChooser;
+import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Calendar;
 import java.util.Date;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -71,8 +72,8 @@ public class Panel extends javax.swing.JPanel {
     private Panel moi = null;
     private EcouteurUpdateClose ecouteurClose = null;
     private EcouteurAjout ecouteurAjout = null;
-    private Bouton btEnregistrer, btAjouter, btSupprimer, btVider, btImprimer, btPDF, btFermer, btActualiser;
-    private RubriqueSimple mEnregistrer, mAjouter, mSupprimer, mVider, mImprimer, mPDF, mFermer, mActualiser;
+    public Bouton btEnregistrer, btAjouter, btSupprimer, btVider, btImprimer, btPDF, btFermer, btActualiser, btPDFSynth;
+    public RubriqueSimple mEnregistrer, mAjouter, mSupprimer, mVider, mImprimer, mPDF, mFermer, mActualiser, mPDFSynth;
     private MenuContextuel menuContextuel = null;
     private BarreOutils bOutils = null;
     private EcouteurTresorerie ecouteurTresorerie = null;
@@ -85,6 +86,9 @@ public class Panel extends javax.swing.JPanel {
     public ParametreTresorerie parametreTresorerie;
     public double totalEncaissement = 0;
     public double totalDecaissement = 0;
+
+    public String monnaieOutput = "";
+    private int typeExport = -1;
 
     public Panel(JTabbedPane parent, DonneesTresorerie donneesTresorerie, ParametreTresorerie parametreTresorerie, EcouteurTresorerie ecouteurTresorerie) {
         this.initComponents();
@@ -108,6 +112,11 @@ public class Panel extends javax.swing.JPanel {
 
         initComposantsMoteursRecherche();
         activerMoteurRecherche();
+        actualiserBtExportTab();
+    }
+    
+    public int getTypeExportation(){
+        return typeExport;
     }
 
     private void ecouterChangementDate(JDateChooser dateChooser) {
@@ -182,6 +191,18 @@ public class Panel extends javax.swing.JPanel {
 
         chRecherche.setTextInitial("Recherche : Saisissez votre mot clé ici, puis tapez ENTER");
         activerCriteres();
+    }
+
+    private void actualiserBtExportTab() {
+        if (btPDFSynth != null) {
+            if (indexTabSelected == 0) {
+                btPDFSynth.setText("Exp. Encaiss.", 12, true);
+                mPDFSynth.setText("Exp. ces encaissements", 12, true);
+            } else {
+                btPDFSynth.setText("Exp. Décaiss.", 12, true);
+                mPDFSynth.setText("Exp. ces décaissements", 12, true);
+            }
+        }
     }
 
     private void afficherCriterePlus() {
@@ -383,7 +404,6 @@ public class Panel extends javax.swing.JPanel {
             }
         }
 
-        String monnaieOutput = "";
         if (ImonnaieOutput != null) {
             monnaieOutput = ImonnaieOutput.getCode();
         }
@@ -395,6 +415,22 @@ public class Panel extends javax.swing.JPanel {
         String solde = "SOLDE: " + Util.getMontantFrancais((totalEncaissement - totalDecaissement)) + " " + monnaieOutput;
         labTotauxEncaissement.setText("ENCAISSEMENT: " + Util.getMontantFrancais(totalListe) + " " + monnaieOutput + " " + montantSelected);
         labTotauxSolde.setText(solde);
+    }
+
+    public double getTotalEncaissement() {
+        return totalEncaissement;
+    }
+
+    public double getTotalDecaissement() {
+        return totalDecaissement;
+    }
+
+    public String getMonnaieOutput() {
+        return this.monnaieOutput;
+    }
+
+    public String getTauxChange() {
+        return labTauxDeChange.getText();
     }
 
     private void actualiserTotalDecaissement() {
@@ -422,7 +458,6 @@ public class Panel extends javax.swing.JPanel {
             }
         }
 
-        String monnaieOutput = "";
         if (ImonnaieOutput != null) {
             monnaieOutput = ImonnaieOutput.getCode();
         }
@@ -447,7 +482,7 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private void parametrerTableDecaissement() {
-        this.modeleListeDecaissement = new ModeleListeDecaissement(scrollListeDecaissement, new EcouteurValeursChangees() {
+        this.modeleListeDecaissement = new ModeleListeDecaissement(scrollListeDecaissement, btEnregistrer, mEnregistrer, new EcouteurValeursChangees() {
             @Override
             public void onValeurChangee() {
                 if (ecouteurClose != null) {
@@ -493,7 +528,7 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private void parametrerTableEncaissement() {
-        this.modeleListeEncaissement = new ModeleListeEncaissement(scrollListeEncaissement, new EcouteurValeursChangees() {
+        this.modeleListeEncaissement = new ModeleListeEncaissement(scrollListeEncaissement, btEnregistrer, mEnregistrer, new EcouteurValeursChangees() {
             @Override
             public void onValeurChangee() {
                 if (ecouteurClose != null) {
@@ -570,6 +605,7 @@ public class Panel extends javax.swing.JPanel {
                 enregistrer();
             }
         });
+        btEnregistrer.setGras(true);
 
         btVider = new Bouton(12, "Vider", icones.getAnnuler_02(), new BoutonListener() {
             @Override
@@ -592,9 +628,18 @@ public class Panel extends javax.swing.JPanel {
             }
         });
 
-        btPDF = new Bouton(12, "Exp. en PDF", icones.getPDF_02(), new BoutonListener() {
+        btPDF = new Bouton(12, "Exp. Tout", icones.getPDF_02(), new BoutonListener() {
             @Override
             public void OnEcouteLeClick() {
+                typeExport = -1;
+                exporterPDF();
+            }
+        });
+
+        btPDFSynth = new Bouton(12, "Exporter", icones.getPDF_02(), new BoutonListener() {
+            @Override
+            public void OnEcouteLeClick() {
+                typeExport = indexTabSelected;
                 exporterPDF();
             }
         });
@@ -616,6 +661,7 @@ public class Panel extends javax.swing.JPanel {
         bOutils.AjouterSeparateur();
         bOutils.AjouterBouton(btImprimer);
         bOutils.AjouterBouton(btPDF);
+        bOutils.AjouterBouton(btPDFSynth);
         bOutils.AjouterSeparateur();
         bOutils.AjouterBouton(btFermer);
     }
@@ -724,6 +770,7 @@ public class Panel extends javax.swing.JPanel {
         this.indexTabSelected = selectedTab;
         actualiserTotaux("activerBoutons");
         afficherCriterePlus();
+        actualiserBtExportTab();
     }
 
     public void ajouter() {
@@ -771,59 +818,68 @@ public class Panel extends javax.swing.JPanel {
     }
 
     private void setMenuContextuel() {
-        mAjouter = new RubriqueSimple("Ajouter", icones.getAjouter_01(), new RubriqueListener() {
+        mAjouter = new RubriqueSimple("Ajouter", 12, false, icones.getAjouter_01(), new RubriqueListener() {
             @Override
             public void OnEcouterLaSelection() {
                 ajouter();
             }
         });
 
-        mSupprimer = new RubriqueSimple("Supprimer", icones.getSupprimer_01(), new RubriqueListener() {
+        mSupprimer = new RubriqueSimple("Supprimer", 12, false, icones.getSupprimer_01(), new RubriqueListener() {
             @Override
             public void OnEcouterLaSelection() {
                 supprimer();
             }
         });
 
-        mEnregistrer = new RubriqueSimple("Enregistrer", icones.getEnregistrer_01(), new RubriqueListener() {
+        mEnregistrer = new RubriqueSimple("Enregistrer", 12, true, icones.getEnregistrer_01(), new RubriqueListener() {
             @Override
             public void OnEcouterLaSelection() {
                 enregistrer();
             }
         });
 
-        mVider = new RubriqueSimple("Vider", icones.getAnnuler_01(), new RubriqueListener() {
+        mVider = new RubriqueSimple("Vider", 12, false, icones.getAnnuler_01(), new RubriqueListener() {
             @Override
             public void OnEcouterLaSelection() {
                 vider();
             }
         });
 
-        mImprimer = new RubriqueSimple("Imprimer", icones.getImprimer_01(), new RubriqueListener() {
+        mImprimer = new RubriqueSimple("Imprimer", 12, false, icones.getImprimer_01(), new RubriqueListener() {
             @Override
             public void OnEcouterLaSelection() {
                 imprimer();
             }
         });
 
-        mFermer = new RubriqueSimple("Fermer", icones.getFermer_01(), new RubriqueListener() {
+        mFermer = new RubriqueSimple("Fermer", 12, false, icones.getFermer_01(), new RubriqueListener() {
             @Override
             public void OnEcouterLaSelection() {
                 fermer();
             }
         });
 
-        mPDF = new RubriqueSimple("Export. PDF", icones.getPDF_01(), new RubriqueListener() {
+        mPDF = new RubriqueSimple("Exporter tout", 12, false, icones.getPDF_01(), new RubriqueListener() {
             @Override
             public void OnEcouterLaSelection() {
+                typeExport = -1;
                 exporterPDF();
             }
         });
 
-        mActualiser = new RubriqueSimple("Actualiser", icones.getSynchroniser_01(), new RubriqueListener() {
+        mActualiser = new RubriqueSimple("Actualiser", 12, false, icones.getSynchroniser_01(), new RubriqueListener() {
             @Override
             public void OnEcouterLaSelection() {
                 actualiser();
+            }
+        });
+        
+        mPDFSynth = new RubriqueSimple("Exporter", 12, true, icones.getPDF_01(), new RubriqueListener() {
+            @Override
+            public void OnEcouterLaSelection() {
+                typeExport = indexTabSelected;
+                exporterPDF();
             }
         });
 
@@ -837,6 +893,7 @@ public class Panel extends javax.swing.JPanel {
         menuContextuel.Ajouter(new JPopupMenu.Separator());
         menuContextuel.Ajouter(mImprimer);
         menuContextuel.Ajouter(mPDF);
+        menuContextuel.Ajouter(mPDFSynth);
         menuContextuel.Ajouter(new JPopupMenu.Separator());
         menuContextuel.Ajouter(mFermer);
     }
@@ -882,11 +939,55 @@ public class Panel extends javax.swing.JPanel {
         if (dialogResult == JOptionPane.YES_OPTION) {
             try {
                 SortiesTresorerie sortie = getSortieTresorerie(btImprimer, mImprimer);
-                //DocumentPDF documentPDF = new DocumentPDF(this, DocumentPDF.ACTION_IMPRIMER, sortie);
+                DocumentPDF documentPDF = new DocumentPDF(this, DocumentPDF.ACTION_IMPRIMER, sortie);
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public String getCritereMonnaie() {
+        if (indexTabSelected == 0) {
+            return chMonnaieEnc.getSelectedItem() + "";
+        } else {
+            return chMonnaieDec.getSelectedItem() + "";
+        }
+    }
+
+    public String getCritereSource() {
+        return chSourceDec.getSelectedItem() + "";
+    }
+    
+    public String getCritereDestination() {
+        return chDestinationEnc.getSelectedItem() + "";
+    }
+
+    public String getCritereRevenu() {
+        return chRevenuEnc.getSelectedItem() + "";
+    }
+    
+    public String getCritereCharge() {
+        return chChargeDec.getSelectedItem() + "";
+    }
+
+    public ParametreTresorerie getParametreTresorerie() {
+        return parametreTresorerie;
+    }
+
+    public Date getCritereDateAEnc() {
+        return chDateAEnc.getDate();
+    }
+
+    public Date getCritereDateBEnc() {
+        return chDateBEnc.getDate();
+    }
+    
+    public Date getCritereDateADec() {
+        return chDateADec.getDate();
+    }
+
+    public Date getCritereDateBDec() {
+        return chDateBDec.getDate();
     }
 
     public String getNomfichierPreuve() {
@@ -942,6 +1043,9 @@ public class Panel extends javax.swing.JPanel {
 
     public void enregistrer() {
         if (this.ecouteurTresorerie != null) {
+            btEnregistrer.setCouleur(Color.black);
+            mEnregistrer.setCouleur(Color.BLACK);
+            
             SortiesTresorerie sortie = getSortieTresorerie(btEnregistrer, mEnregistrer);
             this.ecouteurTresorerie.onEnregistre(sortie);
         }
@@ -952,7 +1056,7 @@ public class Panel extends javax.swing.JPanel {
         if (dialogResult == JOptionPane.YES_OPTION) {
             try {
                 SortiesTresorerie sortie = getSortieTresorerie(btPDF, mPDF);
-                //DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_OUVRIR, sortie);
+                DocumentPDF docpdf = new DocumentPDF(this, DocumentPDF.ACTION_OUVRIR, sortie);
             } catch (Exception e) {
                 e.printStackTrace();
             }

@@ -80,12 +80,12 @@ public class Util {
 
         return dateS;
     }
-    
-    public static boolean contientMotsCles(String base, String motscles){
+
+    public static boolean contientMotsCles(String base, String motscles) {
         boolean rep = false;
         String[] tabMotsCles = motscles.split(" ");
-        for(int i=0; i<tabMotsCles.length; i++){
-            if(base.toLowerCase().contains(tabMotsCles[i].toLowerCase().trim())){
+        for (int i = 0; i < tabMotsCles.length; i++) {
+            if (base.toLowerCase().contains(tabMotsCles[i].toLowerCase().trim())) {
                 return true;
             }
         }
@@ -100,11 +100,37 @@ public class Util {
         return date;
     }
 
+    public static Date getDate_ZeroHeure(Date date) {
+        if (date != null) {
+            date.setHours(23);
+            date.setMinutes(59);
+            date.setSeconds(59);
+        }
+        return date;
+    }
+
     public static Date getDate_CeMatin() {
         Date date = new Date();
         date.setHours(0);
         date.setMinutes(0);
         date.setSeconds(0);
+        return date;
+    }
+    
+    public static String getTexteCourt(String texteOrigine, int tailleOutput){
+        if(texteOrigine.trim().length() > tailleOutput){
+            return texteOrigine.substring(0, tailleOutput)+"...";
+        }else{
+            return texteOrigine;
+        }
+    }
+
+    public static Date getDate_CeMatin(Date date) {
+        if (date != null) {
+            date.setHours(0);
+            date.setMinutes(0);
+            date.setSeconds(0);
+        }
         return date;
     }
 
