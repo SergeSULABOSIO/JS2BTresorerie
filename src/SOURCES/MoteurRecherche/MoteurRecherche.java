@@ -56,7 +56,7 @@ public abstract class MoteurRecherche {
         }
     }
 
-    private void demarrerRecherche() {
+    public void demarrerRecherche() {
         processus = new Thread() {
             @Override
             public void run() {
@@ -106,6 +106,7 @@ public abstract class MoteurRecherche {
             } catch (Exception ex) {
                 Logger.getLogger(MoteurRecherche.class.getName()).log(Level.SEVERE, null, ex);
             }
+
         }
     }
 
