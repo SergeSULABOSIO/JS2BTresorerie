@@ -828,7 +828,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
                     @Override
                     public void onSuppressionConfirmee(int idElement, long signature) {
                         if (ecouteurTresorerie != null) {
-                            ecouteurTresorerie.onDetruitElements(idElement, indexTabSelected);
+                            ecouteurTresorerie.onDetruitElement(idElement, indexTabSelected, signature);
                         }
                     }
                 });
@@ -838,7 +838,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
                     @Override
                     public void onSuppressionConfirmee(int idElement, long signature) {
                         if (ecouteurTresorerie != null) {
-                            ecouteurTresorerie.onDetruitElements(idElement, indexTabSelected);
+                            ecouteurTresorerie.onDetruitElement(idElement, indexTabSelected, signature);
                         }
                     }
                 });

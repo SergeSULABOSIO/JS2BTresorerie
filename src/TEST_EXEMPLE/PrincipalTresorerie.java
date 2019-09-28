@@ -415,7 +415,7 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
 
         panelTresorerie = new PanelTresorerie(new CouleurBasique(), null, tabPrincipal, new DataTresorerie(parametresTresorerie), new EcouteurTresorerie() {
             @Override
-            public void onDetruitElements(int idElement, int index) {
+            public void onDetruitElement(int idElement, int index, long signature) {
                 System.out.println("DESTRUCTION DE L'ELEMENT " + idElement + ", TABLE INDICE " + index);
             }
 
