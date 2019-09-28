@@ -153,7 +153,7 @@ public class ModeleListeEncaissement extends AbstractTableModel {
                     }
                     redessinerTable();
                     if (ecouteurSuppressionElement != null) {
-                        ecouteurSuppressionElement.onSuppressionConfirmee(idASUpp);
+                        ecouteurSuppressionElement.onSuppressionConfirmee(idASUpp, articl.getSignature());
                     }
                 }
             }
