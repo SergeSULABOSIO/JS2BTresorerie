@@ -13,6 +13,6 @@ import SOURCES.Utilitaires_Tresorerie.SortiesTresorerie;
  */
 public abstract class EcouteurTresorerie {
     public abstract void onEnregistre(SortiesTresorerie sortiesTresorerie);
-    public abstract void onDetruitElements(int idElement, int index);
+    public abstract void onDetruitElement(int idElement, int index, long signature);
     
 }
