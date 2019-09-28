@@ -47,6 +47,7 @@ import Source.Objet.Encaissement;
 import Source.Objet.Entreprise;
 import Source.Objet.Monnaie;
 import Source.Objet.Revenu;
+import Source.Objet.UtilObjet;
 import Source.Objet.Utilisateur;
 import Source.UI.NavigateurPages;
 import java.awt.Color;
@@ -749,7 +750,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
                     String revenu = "";
                     int beta = InterfaceEncaissement.BETA_NOUVEAU;
 
-                    modeleListeEncaissement.AjouterEncaissement(new Encaissement(id, dest, reference, date, montant, idMonnaie, monnaie, effectuePar, motif, idRevenu, revenu, idExercice, idUtilisateur, beta));
+                    modeleListeEncaissement.AjouterEncaissement(new Encaissement(id, dest, reference, date, montant, idMonnaie, monnaie, effectuePar, motif, idRevenu, revenu, idExercice, idUtilisateur, UtilObjet.getSignature(), beta));
                     //On sélectionne la première ligne
                     tableListeEncaissement.setRowSelectionInterval(0, 0);
                 }
@@ -774,7 +775,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
                     String charge = "";
                     int beta = InterfaceDecaissement.BETA_NOUVEAU;
 
-                    modeleListeDecaissement.AjouterDecaissement(new Decaissement(id, source, reference, date, montant, idMonnaie, monnaie, beneficiaire, motif, idCharge, charge, idExercice, idUtilisateur, beta));
+                    modeleListeDecaissement.AjouterDecaissement(new Decaissement(id, source, reference, date, montant, idMonnaie, monnaie, beneficiaire, motif, idCharge, charge, idExercice, idUtilisateur, UtilObjet.getSignature(), beta));
                     //On sélectionne la première ligne
                     tableListeDecaissement.setRowSelectionInterval(0, 0);
                 }
@@ -825,7 +826,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
             case 0: //Tab Encaissement
                 modeleListeEncaissement.SupprimerEncaissement(tableListeEncaissement.getSelectedRow(), new EcouteurSuppressionElement() {
                     @Override
-                    public void onSuppressionConfirmee(int idElement) {
+                    public void onSuppressionConfirmee(int idElement, long signature) {
                         if (ecouteurTresorerie != null) {
                             ecouteurTresorerie.onDetruitElements(idElement, indexTabSelected);
                         }
@@ -835,7 +836,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
             case 1: //Tab Decaissement
                 modeleListeDecaissement.SupprimerDecaissement(tableListeDecaissement.getSelectedRow(), new EcouteurSuppressionElement() {
                     @Override
-                    public void onSuppressionConfirmee(int idElement) {
+                    public void onSuppressionConfirmee(int idElement, long signature) {
                         if (ecouteurTresorerie != null) {
                             ecouteurTresorerie.onDetruitElements(idElement, indexTabSelected);
                         }
