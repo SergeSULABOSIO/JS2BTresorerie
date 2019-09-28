@@ -116,7 +116,7 @@ public class ModeleListeDecaissement extends AbstractTableModel {
 
     public void SupprimerDecaissement(int row, EcouteurSuppressionElement ecouteurSuppressionElement) {
         if (row < listeData.size() && row != -1) {
-            InterfaceDecaissement articl = listeData.elementAt(row);
+            Decaissement articl = listeData.elementAt(row);
             if (articl != null) {
                 int idASUupp = articl.getId();
                 if (idASUupp == -100) {
@@ -129,7 +129,7 @@ public class ModeleListeDecaissement extends AbstractTableModel {
                     }
                     redessinerTable();
                     if (ecouteurSuppressionElement != null) {
-                        ecouteurSuppressionElement.onSuppressionConfirmee(idASUupp);
+                        ecouteurSuppressionElement.onSuppressionConfirmee(idASUupp, articl.getSignature());
                     }
                 }
             }
