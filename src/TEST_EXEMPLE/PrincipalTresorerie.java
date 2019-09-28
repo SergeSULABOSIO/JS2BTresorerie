@@ -56,7 +56,7 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
     public Vector<Charge> charges = new Vector<>();
 
     public Entreprise entreprise = new Entreprise(1, "ECOLE CARESIENNE DE KINSHASA", "7e Rue Limeté Industrielle, Kinshasa/RDC", "+243844803514", "infos@cartesien.org", "wwww.cartesien.org", "logo.png", "RCCM/KD/CD/4513", "IDN00111454", "IMP00124100", "Equity Bank Congo SA", "AIB RDC Sarl", "000000121212400", "IBANNN0012", "SWIFTCDK");
-    public Exercice exercice = new Exercice(12, entreprise.getId(), 1, "Année Scolaire 2019-2020", new Date(), UtilTresorerie.getDate_AjouterAnnee(new Date(), 1), InterfaceExercice.BETA_EXISTANT);
+    public Exercice exercice = new Exercice(12, entreprise.getId(), 1, "Année Scolaire 2019-2020", new Date(), UtilTresorerie.getDate_AjouterAnnee(new Date(), 1), UtilObjet.getSignature(), InterfaceExercice.BETA_EXISTANT);
     public Utilisateur utilisateur = new Utilisateur(1, entreprise.getId(), "SULA", "BOSIO", "SERGE", "sulabosiog@gmail.com", "abc", InterfaceUtilisateur.TYPE_ADMIN, UtilTresorerie.generateSignature(), InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.DROIT_CONTROLER, InterfaceUtilisateur.BETA_EXISTANT);
     public Monnaie monnaie_CDF = new Monnaie(21, entreprise.getId(), utilisateur.getId(), exercice.getId(), "Francs Congolais", "Fc", InterfaceMonnaie.NATURE_MONNAIE_LOCALE, 1, UtilTresorerie.generateSignature(), InterfaceMonnaie.BETA_EXISTANT);
     public Monnaie monnaie_USD = new Monnaie(20, entreprise.getId(), utilisateur.getId(), exercice.getId(), "Dollars Américains", "$", InterfaceMonnaie.NATURE_MONNAIE_ETRANGERE, 1620, UtilTresorerie.generateSignature(), InterfaceMonnaie.BETA_EXISTANT);
@@ -403,11 +403,11 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
 
     private void initDonnees() {
         listeEncaissements.removeAllElements();
-        listeEncaissements.addElement(new Encaissement(1, InterfaceEncaissement.DESTINATION_BANQUE, "0014578BN", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Loyer restaut YZ", 2, "Loyer restau", exercice.getId(), utilisateur.getId(), InterfaceRevenu.BETA_EXISTANT));
-        listeEncaissements.addElement(new Encaissement(-100, InterfaceEncaissement.DESTINATION_BANQUE, "0014578NNN", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Non editable", 2, "Loyer restau", exercice.getId(), utilisateur.getId(), InterfaceRevenu.BETA_EXISTANT));
+        listeEncaissements.addElement(new Encaissement(1, InterfaceEncaissement.DESTINATION_BANQUE, "0014578BN", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Loyer restaut YZ", 2, "Loyer restau", exercice.getId(), utilisateur.getId(), UtilObjet.getSignature(), InterfaceRevenu.BETA_EXISTANT));
+        listeEncaissements.addElement(new Encaissement(-100, InterfaceEncaissement.DESTINATION_BANQUE, "0014578NNN", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Non editable", 2, "Loyer restau", exercice.getId(), utilisateur.getId(), UtilObjet.getSignature(), InterfaceRevenu.BETA_EXISTANT));
 
         listeDecaissements.removeAllElements();
-        listeDecaissements.addElement(new Decaissement(1, InterfaceDecaissement.SOURCE_BANQUE, "B0014578O", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Autres", 2, "Loyer restau", exercice.getId(), utilisateur.getId(), InterfaceRevenu.BETA_EXISTANT));
+        listeDecaissements.addElement(new Decaissement(1, InterfaceDecaissement.SOURCE_BANQUE, "B0014578O", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Autres", 2, "Loyer restau", exercice.getId(), utilisateur.getId(), UtilObjet.getSignature(), InterfaceRevenu.BETA_EXISTANT));
     }
 
     private void initParametres() {
