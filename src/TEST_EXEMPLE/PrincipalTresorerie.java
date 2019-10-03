@@ -70,6 +70,7 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
         initComponents();
         icones = new Icones();
         this.setIconImage(icones.getAdresse_03().getImage());
+        //TEst
     }
 
     private void chercherEncaissements(String motCle, int taillePage, JS2BPanelPropriete criteresAvances) {
