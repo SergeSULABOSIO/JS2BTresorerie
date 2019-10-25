@@ -7,7 +7,7 @@ package SOURCES.Utilitaires_Tresorerie;
 
 import Source.Objet.Charge;
 import Source.Objet.Entreprise;
-import Source.Objet.Exercice;
+import Source.Objet.Annee;
 import Source.Objet.Monnaie;
 import Source.Objet.Revenu;
 import Source.Objet.Utilisateur;
@@ -19,13 +19,13 @@ import java.util.Vector;
  */
 public class ParametreTresorerie {
     public Entreprise entreprise;
-    public Exercice exercice;
+    public Annee exercice;
     public Utilisateur utilisateur;
     public Vector<Monnaie> monnaies;
     public Vector<Revenu> revenus;
     public Vector<Charge> charges;
 
-    public ParametreTresorerie(Entreprise entreprise, Exercice exercice, Utilisateur utilisateur, Vector<Monnaie> monnaies, Vector<Revenu> revenus, Vector<Charge> charges) {
+    public ParametreTresorerie(Entreprise entreprise, Annee exercice, Utilisateur utilisateur, Vector<Monnaie> monnaies, Vector<Revenu> revenus, Vector<Charge> charges) {
         this.entreprise = entreprise;
         this.exercice = exercice;
         this.utilisateur = utilisateur;
@@ -51,11 +51,11 @@ public class ParametreTresorerie {
         this.entreprise = entreprise;
     }
 
-    public Exercice getExercice() {
+    public Annee getExercice() {
         return exercice;
     }
 
-    public void setExercice(Exercice exercice) {
+    public void setExercice(Annee exercice) {
         this.exercice = exercice;
     }
 
