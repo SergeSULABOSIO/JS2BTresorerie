@@ -420,6 +420,11 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
             public boolean onVerifie() {
                 return true;
             }
+
+            @Override
+            public boolean onVerifieNombre(String nomTable) {
+                return true;
+            }
         }, new CouleurBasique(), null, tabPrincipal, new DataTresorerie(parametresTresorerie), new EcouteurTresorerie() {
             @Override
             public void onDetruitElement(int idElement, int index, long signature) {
