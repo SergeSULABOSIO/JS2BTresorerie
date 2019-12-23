@@ -14,6 +14,7 @@ import SOURCES.Utilitaires_Tresorerie.ParametreTresorerie;
 import SOURCES.Utilitaires_Tresorerie.SortiesTresorerie;
 import SOURCES.Utilitaires_Tresorerie.UtilTresorerie;
 import Source.Callbacks.ConstructeurCriteres;
+import Source.Callbacks.EcouteurFreemium;
 import Source.Callbacks.EcouteurNavigateurPages;
 import Source.Interface.InterfaceDecaissement;
 import Source.Interface.InterfaceEncaissement;
@@ -83,7 +84,7 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
             index++;
         }
     }
-    
+
     private void chercherDecaissements(String motCle, int taillePage, JS2BPanelPropriete criteresAvances) {
         int index = 0;
         for (Decaissement ee : listeDecaissements) {
@@ -145,7 +146,7 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
             return false;
         }
     }
-    
+
     public boolean checkCriteresDecaissements(String motCle, Object data, JS2BPanelPropriete jsbpp) {
         Decaissement decaissement = (Decaissement) data;
         boolean repMotCle = panelTresorerie.search_verifier_motcle_decaiss(decaissement, motCle);
@@ -310,7 +311,7 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
                 public JS2BPanelPropriete onInitialise() {
                     JS2BPanelPropriete panProp = new JS2BPanelPropriete(icones.getFiltrer_01(), "Critères avancés", true);
                     panProp.viderListe();
-                    
+
                     panProp.AjouterPropriete(new CHAMP_LOCAL(icones.getCalendrier_01(), "A partir du", "du", null, UtilTresorerie.getDate_CeMatin(new Date()), PROPRIETE.TYPE_CHOIX_DATE), 0);
                     panProp.AjouterPropriete(new CHAMP_LOCAL(icones.getCalendrier_01(), "Jusqu'au", "Au", null, UtilTresorerie.getDate_ZeroHeure(new Date()), PROPRIETE.TYPE_CHOIX_DATE), 0);
 
@@ -414,7 +415,12 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
     private void initParametres() {
         ParametreTresorerie parametresTresorerie = getParametresTresorerie();
 
-        panelTresorerie = new PanelTresorerie(new CouleurBasique(), null, tabPrincipal, new DataTresorerie(parametresTresorerie), new EcouteurTresorerie() {
+        panelTresorerie = new PanelTresorerie(new EcouteurFreemium() {
+            @Override
+            public boolean onVerifie() {
+                return true;
+            }
+        }, new CouleurBasique(), null, tabPrincipal, new DataTresorerie(parametresTresorerie), new EcouteurTresorerie() {
             @Override
             public void onDetruitElement(int idElement, int index, long signature) {
                 System.out.println("DESTRUCTION DE L'ELEMENT " + idElement + ", TABLE INDICE " + index);
@@ -430,7 +436,7 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
                         try {
                             sortiesTresorerie.getEcouteurEnregistrement().onUploading("Chargement...");
                             sleep(10);
-                            
+
                             sortiesTresorerie.getListeEncaissements().forEach((Oeleve) -> {
                                 if (Oeleve.getBeta() == InterfaceEncaissement.BETA_MODIFIE || Oeleve.getBeta() == InterfaceEncaissement.BETA_NOUVEAU) {
                                     System.out.println(" * " + Oeleve.toString());

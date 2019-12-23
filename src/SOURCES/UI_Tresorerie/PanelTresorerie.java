@@ -32,6 +32,7 @@ import SOURCES.Utilitaires_Tresorerie.ParametreTresorerie;
 import SOURCES.Utilitaires_Tresorerie.SortiesTresorerie;
 import SOURCES.Utilitaires_Tresorerie.UtilTresorerie;
 import Source.Callbacks.EcouteurEnregistrement;
+import Source.Callbacks.EcouteurFreemium;
 import Source.Callbacks.EcouteurSuppressionElement;
 import Source.Callbacks.EcouteurUpdateClose;
 import Source.Callbacks.EcouteurValeursChangees;
@@ -53,7 +54,6 @@ import Source.UI.NavigateurPages;
 import java.awt.Color;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
 import java.util.Date;
 import java.util.Vector;
 import javax.swing.ImageIcon;
@@ -110,9 +110,11 @@ public class PanelTresorerie extends javax.swing.JPanel {
     public Encaissement selectedEncaissement = null;
     public Decaissement selectedDecaissement = null;
     private GestionEdition gestionEdition = new GestionEdition();
+    private EcouteurFreemium ef = null;
 
-    public PanelTresorerie(CouleurBasique couleurBasique, JProgressBar progress, JTabbedPane parent, DataTresorerie dataTresorerie, EcouteurTresorerie ecouteurTresorerie) {
+    public PanelTresorerie(EcouteurFreemium ef, CouleurBasique couleurBasique, JProgressBar progress, JTabbedPane parent, DataTresorerie dataTresorerie, EcouteurTresorerie ecouteurTresorerie) {
         this.initComponents();
+        this.ef = ef;
         this.couleurBasique = couleurBasique;
         this.progress = progress;
         this.dataTresorerie = dataTresorerie;
@@ -945,7 +947,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
         bOutils = new BarreOutils(barreOutils);
         if (dataTresorerie.getParametreTresorerie().getUtilisateur() != null) {
             Utilisateur user = dataTresorerie.getParametreTresorerie().getUtilisateur();
-            
+
             if (user.getDroitTresorerie() == InterfaceUtilisateur.DROIT_CONTROLER) {
                 bOutils.AjouterBouton(btEnregistrer);
                 bOutils.AjouterBouton(btAjouter);
@@ -1097,13 +1099,17 @@ public class PanelTresorerie extends javax.swing.JPanel {
     }
 
     public void imprimer() {
-        int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir imprimer ce document?", "Avertissement", JOptionPane.YES_NO_OPTION);
-        if (dialogResult == JOptionPane.YES_OPTION) {
-            try {
-                SortiesTresorerie sortie = getSortieTresorerie(btImprimer, mImprimer);
-                DocumentPDFTres documentPDF = new DocumentPDFTres(this, DocumentPDFTres.ACTION_IMPRIMER, sortie);
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (ef != null) {
+            if (ef.onVerifie() == true) {
+                int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir imprimer ce document?", "Avertissement", JOptionPane.YES_NO_OPTION);
+                if (dialogResult == JOptionPane.YES_OPTION) {
+                    try {
+                        SortiesTresorerie sortie = getSortieTresorerie(btImprimer, mImprimer);
+                        DocumentPDFTres documentPDF = new DocumentPDFTres(this, DocumentPDFTres.ACTION_IMPRIMER, sortie);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
     }
@@ -1176,15 +1182,20 @@ public class PanelTresorerie extends javax.swing.JPanel {
     }
 
     public void exporterPDF() {
-        int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous les exporter dans un fichier PDF?", "Avertissement", JOptionPane.YES_NO_OPTION);
-        if (dialogResult == JOptionPane.YES_OPTION) {
-            try {
-                SortiesTresorerie sortie = getSortieTresorerie(btPDF, mPDF);
-                DocumentPDFTres docpdf = new DocumentPDFTres(this, DocumentPDFTres.ACTION_OUVRIR, sortie);
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (ef != null) {
+            if (ef.onVerifie() == true) {
+                int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous les exporter dans un fichier PDF?", "Avertissement", JOptionPane.YES_NO_OPTION);
+                if (dialogResult == JOptionPane.YES_OPTION) {
+                    try {
+                        SortiesTresorerie sortie = getSortieTresorerie(btPDF, mPDF);
+                        DocumentPDFTres docpdf = new DocumentPDFTres(this, DocumentPDFTres.ACTION_OUVRIR, sortie);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
+
     }
 
     public EcouteurActualisationTresorerie getEcouteurActualisationTresorerie() {
