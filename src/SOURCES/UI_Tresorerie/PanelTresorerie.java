@@ -1100,7 +1100,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
 
     public void imprimer() {
         if (ef != null) {
-            if (ef.onVerifie() == true) {
+            if (ef.onVerifieNombre(null) == true) {
                 int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir imprimer ce document?", "Avertissement", JOptionPane.YES_NO_OPTION);
                 if (dialogResult == JOptionPane.YES_OPTION) {
                     try {
@@ -1183,7 +1183,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
 
     public void exporterPDF() {
         if (ef != null) {
-            if (ef.onVerifie() == true) {
+            if (ef.onVerifieNombre(null) == true) {
                 int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous les exporter dans un fichier PDF?", "Avertissement", JOptionPane.YES_NO_OPTION);
                 if (dialogResult == JOptionPane.YES_OPTION) {
                     try {
