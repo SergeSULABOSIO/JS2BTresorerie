@@ -1086,13 +1086,22 @@ public class PanelTresorerie extends javax.swing.JPanel {
             int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous enregistrer les modifications et/ou ajouts apportés à ces données?", "Avertissement", JOptionPane.YES_NO_CANCEL_OPTION);
             if (dialogResult == JOptionPane.YES_OPTION) {
                 this.ecouteurTresorerie.onEnregistre(getSortieTresorerie(btEnregistrer, mEnregistrer));
+                if(ecouteurTresorerie != null){
+                    ecouteurTresorerie.onClosed();
+                }
                 this.ecouteurClose.onFermer();
             } else if (dialogResult == JOptionPane.NO_OPTION) {
+                if(ecouteurTresorerie != null){
+                    ecouteurTresorerie.onClosed();
+                }
                 this.ecouteurClose.onFermer();
             }
         } else {
             int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir fermer cette fenêtre?", "Avertissement", JOptionPane.YES_NO_OPTION);
             if (dialogResult == JOptionPane.YES_OPTION) {
+                if(ecouteurTresorerie != null){
+                    ecouteurTresorerie.onClosed();
+                }
                 this.ecouteurClose.onFermer();
             }
         }

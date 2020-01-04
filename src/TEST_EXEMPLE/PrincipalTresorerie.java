@@ -471,6 +471,11 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
                 th.start();
 
             }
+
+            @Override
+            public void onClosed() {
+                
+            }
         });
 
     }
