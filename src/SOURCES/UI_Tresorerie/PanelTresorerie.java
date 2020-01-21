@@ -827,10 +827,20 @@ public class PanelTresorerie extends javax.swing.JPanel {
         switch (indexTabSelected) {
             case 0: //Tab Encaissement
                 modeleListeEncaissement.SupprimerEncaissement(tableListeEncaissement.getSelectedRow(), new EcouteurSuppressionElement() {
+
                     @Override
-                    public void onSuppressionConfirmee(int idElement, long signature) {
+                    public void onDeletionComplete(int idElement, long signature) {
                         if (ecouteurTresorerie != null) {
                             ecouteurTresorerie.onDetruitElement(idElement, indexTabSelected, signature);
+                        }
+                    }
+
+                    @Override
+                    public boolean onCanDelete(int idElement, long signature) {
+                        if (ecouteurTresorerie != null) {
+                            return ecouteurTresorerie.onCanDelete(idElement, indexTabSelected, signature);
+                        } else {
+                            return false;
                         }
                     }
                 });
@@ -838,9 +848,18 @@ public class PanelTresorerie extends javax.swing.JPanel {
             case 1: //Tab Decaissement
                 modeleListeDecaissement.SupprimerDecaissement(tableListeDecaissement.getSelectedRow(), new EcouteurSuppressionElement() {
                     @Override
-                    public void onSuppressionConfirmee(int idElement, long signature) {
+                    public void onDeletionComplete(int idElement, long signature) {
                         if (ecouteurTresorerie != null) {
                             ecouteurTresorerie.onDetruitElement(idElement, indexTabSelected, signature);
+                        }
+                    }
+
+                    @Override
+                    public boolean onCanDelete(int idElement, long signature) {
+                        if (ecouteurTresorerie != null) {
+                            return ecouteurTresorerie.onCanDelete(idElement, indexTabSelected, signature);
+                        } else {
+                            return false;
                         }
                     }
                 });
@@ -1086,12 +1105,12 @@ public class PanelTresorerie extends javax.swing.JPanel {
             int dialogResult = JOptionPane.showConfirmDialog(this, "Voulez-vous enregistrer les modifications et/ou ajouts apportés à ces données?", "Avertissement", JOptionPane.YES_NO_CANCEL_OPTION);
             if (dialogResult == JOptionPane.YES_OPTION) {
                 this.ecouteurTresorerie.onEnregistre(getSortieTresorerie(btEnregistrer, mEnregistrer));
-                if(ecouteurTresorerie != null){
+                if (ecouteurTresorerie != null) {
                     ecouteurTresorerie.onClosed();
                 }
                 this.ecouteurClose.onFermer();
             } else if (dialogResult == JOptionPane.NO_OPTION) {
-                if(ecouteurTresorerie != null){
+                if (ecouteurTresorerie != null) {
                     ecouteurTresorerie.onClosed();
                 }
                 this.ecouteurClose.onFermer();
@@ -1099,7 +1118,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
         } else {
             int dialogResult = JOptionPane.showConfirmDialog(this, "Etes-vous sûr de vouloir fermer cette fenêtre?", "Avertissement", JOptionPane.YES_NO_OPTION);
             if (dialogResult == JOptionPane.YES_OPTION) {
-                if(ecouteurTresorerie != null){
+                if (ecouteurTresorerie != null) {
                     ecouteurTresorerie.onClosed();
                 }
                 this.ecouteurClose.onFermer();

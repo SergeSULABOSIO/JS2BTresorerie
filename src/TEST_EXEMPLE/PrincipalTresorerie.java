@@ -476,6 +476,11 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
             public void onClosed() {
                 
             }
+
+            @Override
+            public boolean onCanDelete(int idElement, int index, long signature) {
+                return true;
+            }
         });
 
     }

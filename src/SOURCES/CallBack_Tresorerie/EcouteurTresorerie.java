@@ -14,5 +14,6 @@ import SOURCES.Utilitaires_Tresorerie.SortiesTresorerie;
 public abstract class EcouteurTresorerie {
     public abstract void onEnregistre(SortiesTresorerie sortiesTresorerie);
     public abstract void onDetruitElement(int idElement, int index, long signature);
+    public abstract boolean onCanDelete(int idElement, int index, long signature);
     public abstract void onClosed();    
 }

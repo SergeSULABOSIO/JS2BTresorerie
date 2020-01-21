@@ -143,19 +143,22 @@ public class ModeleListeEncaissement extends AbstractTableModel {
             Encaissement articl = listeData.elementAt(row);
             if (articl != null) {
                 int idASUpp = articl.getId();
-                if (idASUpp == -100) {
-                    return;
-                }
-                int dialogResult = JOptionPane.showConfirmDialog(parent, "Etes-vous sûr de vouloir supprimer cette liste?", "Avertissement", JOptionPane.YES_NO_OPTION);
-                if (dialogResult == JOptionPane.YES_OPTION) {
-                    if (row <= listeData.size()) {
-                        this.listeData.removeElementAt(row);
+                if (ecouteurSuppressionElement.onCanDelete(idASUpp, articl.getSignature()) == true) {
+                    if (idASUpp == -100) {
+                        return;
                     }
-                    redessinerTable();
-                    if (ecouteurSuppressionElement != null) {
-                        ecouteurSuppressionElement.onSuppressionConfirmee(idASUpp, articl.getSignature());
+                    int dialogResult = JOptionPane.showConfirmDialog(parent, "Etes-vous sûr de vouloir supprimer cette liste?", "Avertissement", JOptionPane.YES_NO_OPTION);
+                    if (dialogResult == JOptionPane.YES_OPTION) {
+                        if (row <= listeData.size()) {
+                            this.listeData.removeElementAt(row);
+                        }
+                        redessinerTable();
+                        if (ecouteurSuppressionElement != null) {
+                            ecouteurSuppressionElement.onDeletionComplete(idASUpp, articl.getSignature());
+                        }
                     }
                 }
+
             }
         }
     }
@@ -314,6 +317,3 @@ public class ModeleListeEncaissement extends AbstractTableModel {
     }
 
 }
-
-
-

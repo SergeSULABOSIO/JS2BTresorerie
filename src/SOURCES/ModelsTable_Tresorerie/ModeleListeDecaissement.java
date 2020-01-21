@@ -119,19 +119,22 @@ public class ModeleListeDecaissement extends AbstractTableModel {
             Decaissement articl = listeData.elementAt(row);
             if (articl != null) {
                 int idASUupp = articl.getId();
-                if (idASUupp == -100) {
-                    return;
-                }
-                int dialogResult = JOptionPane.showConfirmDialog(parent, "Etes-vous sûr de vouloir supprimer cette liste?", "Avertissement", JOptionPane.YES_NO_OPTION);
-                if (dialogResult == JOptionPane.YES_OPTION) {
-                    if (row <= listeData.size()) {
-                        this.listeData.removeElementAt(row);
+                if (ecouteurSuppressionElement.onCanDelete(idASUupp, articl.getSignature()) == true) {
+                    if (idASUupp == -100) {
+                        return;
                     }
-                    redessinerTable();
-                    if (ecouteurSuppressionElement != null) {
-                        ecouteurSuppressionElement.onSuppressionConfirmee(idASUupp, articl.getSignature());
+                    int dialogResult = JOptionPane.showConfirmDialog(parent, "Etes-vous sûr de vouloir supprimer cette liste?", "Avertissement", JOptionPane.YES_NO_OPTION);
+                    if (dialogResult == JOptionPane.YES_OPTION) {
+                        if (row <= listeData.size()) {
+                            this.listeData.removeElementAt(row);
+                        }
+                        redessinerTable();
+                        if (ecouteurSuppressionElement != null) {
+                            ecouteurSuppressionElement.onDeletionComplete(idASUupp, articl.getSignature());
+                        }
                     }
                 }
+
             }
         }
     }
@@ -290,5 +293,3 @@ public class ModeleListeDecaissement extends AbstractTableModel {
     }
 
 }
-
-
