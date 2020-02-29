@@ -405,11 +405,11 @@ public class PrincipalTresorerie extends javax.swing.JFrame {
 
     private void initDonnees() {
         listeEncaissements.removeAllElements();
-        listeEncaissements.addElement(new Encaissement(1, InterfaceEncaissement.DESTINATION_BANQUE, "0014578BN", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Loyer restaut YZ", 2, "Loyer restau", exercice.getId(), utilisateur.getId(), UtilObjet.getSignature(), InterfaceRevenu.BETA_EXISTANT));
-        listeEncaissements.addElement(new Encaissement(-100, InterfaceEncaissement.DESTINATION_BANQUE, "0014578NNN", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Non editable", 2, "Loyer restau", exercice.getId(), utilisateur.getId(), UtilObjet.getSignature(), InterfaceRevenu.BETA_EXISTANT));
+        listeEncaissements.addElement(new Encaissement(1, InterfaceEncaissement.DESTINATION_BANQUE, "0014578BN", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Loyer restaut YZ", 2, "Loyer restau", entreprise.getId(), exercice.getId(), utilisateur.getId(), UtilObjet.getSignature(), InterfaceRevenu.BETA_EXISTANT));
+        listeEncaissements.addElement(new Encaissement(-100, InterfaceEncaissement.DESTINATION_BANQUE, "0014578NNN", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Non editable", 2, "Loyer restau", entreprise.getId(), exercice.getId(), utilisateur.getId(), UtilObjet.getSignature(), InterfaceRevenu.BETA_EXISTANT));
 
         listeDecaissements.removeAllElements();
-        listeDecaissements.addElement(new Decaissement(1, InterfaceDecaissement.SOURCE_BANQUE, "B0014578O", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Autres", 2, "Loyer restau", exercice.getId(), utilisateur.getId(), UtilObjet.getSignature(), InterfaceRevenu.BETA_EXISTANT));
+        listeDecaissements.addElement(new Decaissement(1, InterfaceDecaissement.SOURCE_BANQUE, "B0014578O", new Date(), 100, monnaie_USD.getId(), monnaie_USD.getCode(), utilisateur.getNom(), "Autres", 2, "Loyer restau", entreprise.getId(), exercice.getId(), utilisateur.getId(), UtilObjet.getSignature(), InterfaceRevenu.BETA_EXISTANT));
     }
 
     private void initParametres() {

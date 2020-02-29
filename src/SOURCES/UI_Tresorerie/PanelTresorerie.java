@@ -573,7 +573,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
     }
 
     private void initModelTableDecaissement() {
-        this.modeleListeDecaissement = new ModeleListeDecaissement(gestionEdition, progress, couleurBasique, scrollListeDecaissement, btEnregistrer, mEnregistrer, new EcouteurValeursChangees() {
+        this.modeleListeDecaissement = new ModeleListeDecaissement(dataTresorerie.getParametreTresorerie().getCharges(), gestionEdition, progress, couleurBasique, scrollListeDecaissement, btEnregistrer, mEnregistrer, new EcouteurValeursChangees() {
             @Override
             public void onValeurChangee() {
                 if (ecouteurClose != null) {
@@ -657,7 +657,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
     }
 
     private void initModelTableEncaissement() {
-        this.modeleListeEncaissement = new ModeleListeEncaissement(gestionEdition, progress, couleurBasique, scrollListeEncaissement, btEnregistrer, mEnregistrer, new EcouteurValeursChangees() {
+        this.modeleListeEncaissement = new ModeleListeEncaissement(dataTresorerie.getParametreTresorerie().getRevenus(), gestionEdition, progress, couleurBasique, scrollListeEncaissement, btEnregistrer, mEnregistrer, new EcouteurValeursChangees() {
             @Override
             public void onValeurChangee() {
                 if (ecouteurClose != null) {
@@ -737,6 +737,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
             public void setAjoutEncaissement(ModeleListeEncaissement modeleListeEncaissement) {
                 if (modeleListeEncaissement != null) {
                     int index = (modeleListeEncaissement.getRowCount() + 1);
+                    int idEntreprise = dataTresorerie.getParametreTresorerie().getEntreprise().getId();
                     int idExercice = dataTresorerie.getParametreTresorerie().getExercice().getId();
                     int idUtilisateur = dataTresorerie.getParametreTresorerie().getUtilisateur().getId();
                     Date date = new Date();
@@ -752,7 +753,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
                     String revenu = "";
                     int beta = InterfaceEncaissement.BETA_NOUVEAU;
 
-                    modeleListeEncaissement.AjouterEncaissement(new Encaissement(id, dest, reference, date, montant, idMonnaie, monnaie, effectuePar, motif, idRevenu, revenu, idExercice, idUtilisateur, UtilObjet.getSignature(), beta));
+                    modeleListeEncaissement.AjouterEncaissement(new Encaissement(id, dest, reference, date, montant, idMonnaie, monnaie, effectuePar, motif, idRevenu, revenu, idEntreprise, idExercice, idUtilisateur, UtilObjet.getSignature(), beta));
                     //On sélectionne la première ligne
                     tableListeEncaissement.setRowSelectionInterval(0, 0);
                 }
@@ -762,6 +763,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
             public void setAjoutDecaissement(ModeleListeDecaissement modeleListeDecaissement) {
                 if (modeleListeDecaissement != null) {
                     int index = (modeleListeDecaissement.getRowCount() + 1);
+                    int idEntreprise = dataTresorerie.getParametreTresorerie().getEntreprise().getId();
                     int idExercice = dataTresorerie.getParametreTresorerie().getExercice().getId();
                     int idUtilisateur = dataTresorerie.getParametreTresorerie().getUtilisateur().getId();
                     Date date = new Date();
@@ -777,7 +779,7 @@ public class PanelTresorerie extends javax.swing.JPanel {
                     String charge = "";
                     int beta = InterfaceDecaissement.BETA_NOUVEAU;
 
-                    modeleListeDecaissement.AjouterDecaissement(new Decaissement(id, source, reference, date, montant, idMonnaie, monnaie, beneficiaire, motif, idCharge, charge, idExercice, idUtilisateur, UtilObjet.getSignature(), beta));
+                    modeleListeDecaissement.AjouterDecaissement(new Decaissement(id, source, reference, date, montant, idMonnaie, monnaie, beneficiaire, motif, idCharge, charge, idEntreprise, idExercice, idUtilisateur, UtilObjet.getSignature(), beta));
                     //On sélectionne la première ligne
                     tableListeDecaissement.setRowSelectionInterval(0, 0);
                 }

@@ -11,6 +11,7 @@ import Source.Callbacks.EcouteurSuppressionElement;
 import Source.Callbacks.EcouteurValeursChangees;
 import Source.GestionEdition;
 import Source.Interface.InterfaceDecaissement;
+import Source.Objet.Charge;
 import Source.Objet.CouleurBasique;
 import Source.Objet.Cours;
 import Source.Objet.Decaissement;
@@ -36,8 +37,9 @@ public class ModeleListeDecaissement extends AbstractTableModel {
     private CouleurBasique couleurBasique;
     private JProgressBar progress;
     private GestionEdition gestionEdition;
+    private Vector<Charge> listeCharges = new Vector<>();
 
-    public ModeleListeDecaissement(GestionEdition gestionEdition, JProgressBar progress, CouleurBasique couleurBasique, JScrollPane parent, Bouton btEnreg, RubriqueSimple mEnreg, EcouteurValeursChangees ecouteurModele) {
+    public ModeleListeDecaissement(Vector<Charge> listeCharges, GestionEdition gestionEdition, JProgressBar progress, CouleurBasique couleurBasique, JScrollPane parent, Bouton btEnreg, RubriqueSimple mEnreg, EcouteurValeursChangees ecouteurModele) {
         this.parent = parent;
         this.progress = progress;
         this.couleurBasique = couleurBasique;
@@ -45,6 +47,16 @@ public class ModeleListeDecaissement extends AbstractTableModel {
         this.mEnreg = mEnreg;
         this.btEnreg = btEnreg;
         this.gestionEdition = gestionEdition;
+        this.listeCharges = listeCharges;
+    }
+    
+    private String getCharge(int idCharge) {
+        for (Charge cha : listeCharges) {
+            if (cha.getId() == idCharge) {
+                return cha.getNom();
+            }
+        }
+        return "Null";
     }
 
     public void setDonneesDecaissements(Decaissement decaissement) {
@@ -266,6 +278,7 @@ public class ModeleListeDecaissement extends AbstractTableModel {
                 break;
             case 5:
                 Idecaisse.setIdCharge(Integer.parseInt(aValue + ""));
+                Idecaisse.setCharge(getCharge(Idecaisse.getIdCharge()));
                 break;
             case 6:
                 Idecaisse.setBeneficiaire(aValue + "");

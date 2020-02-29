@@ -15,6 +15,7 @@ import Source.Interface.InterfaceEncaissement;
 import Source.Objet.CouleurBasique;
 import Source.Objet.Cours;
 import Source.Objet.Encaissement;
+import Source.Objet.Revenu;
 import java.util.Date;
 import java.util.Vector;
 import javax.swing.JOptionPane;
@@ -38,8 +39,9 @@ public class ModeleListeEncaissement extends AbstractTableModel {
     private CouleurBasique couleurBasique;
     private JProgressBar progress;
     private GestionEdition gestionEdition;
+    private Vector<Revenu> listeRevenus = new Vector<>();
 
-    public ModeleListeEncaissement(GestionEdition gestionEdition, JProgressBar progress, CouleurBasique couleurBasique, JScrollPane parent, Bouton btEnreg, RubriqueSimple mEnreg, EcouteurValeursChangees ecouteurModele) {
+    public ModeleListeEncaissement(Vector<Revenu> listeRevenus, GestionEdition gestionEdition, JProgressBar progress, CouleurBasique couleurBasique, JScrollPane parent, Bouton btEnreg, RubriqueSimple mEnreg, EcouteurValeursChangees ecouteurModele) {
         this.parent = parent;
         this.progress = progress;
         this.couleurBasique = couleurBasique;
@@ -47,6 +49,16 @@ public class ModeleListeEncaissement extends AbstractTableModel {
         this.mEnreg = mEnreg;
         this.btEnreg = btEnreg;
         this.gestionEdition = gestionEdition;
+        this.listeRevenus = listeRevenus;
+    }
+
+    private String getRevenu(int idRevenu) {
+        for (Revenu rev : listeRevenus) {
+            if (rev.getId() == idRevenu) {
+                return rev.getNom();
+            }
+        }
+        return "Null";
     }
 
     public void setDonneesEncaissements(Encaissement encaissement) {
@@ -290,6 +302,7 @@ public class ModeleListeEncaissement extends AbstractTableModel {
                 break;
             case 5:
                 Iencaisse.setIdRevenu(Integer.parseInt(aValue + ""));
+                Iencaisse.setRevenu(getRevenu(Iencaisse.getIdRevenu()));
                 break;
             case 6:
                 Iencaisse.setEffectuePar(aValue + "");
